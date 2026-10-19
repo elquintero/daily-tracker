@@ -85,6 +85,9 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute
 td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border-bottom:0}
 .bar{height:8px;border-radius:4px;background:var(--steel)}
 .sync{margin-top:auto;font-size:12px;padding:8px 10px;border-radius:10px;cursor:pointer;background:var(--steel-l);color:var(--steel-d)}.sync.err{background:var(--urgb);color:var(--urg)}.sync.busy{color:var(--mute)}
+.s-baja{background:#e3e8fb;color:#4c5bb5}.task.baja{background:#eef1fb;border-color:#aab6e6}.task.baja:hover{border-color:#6f7fd0}
+.foot{margin-top:28px;padding-top:10px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--mute);cursor:pointer}.foot:hover{color:var(--steel-d)}
+.s-vacaciones{background:#d9f2ee;color:#17796b}.task.vacaciones{background:#ecf9f6;border-color:#86cfc3}.task.vacaciones:hover{border-color:#3fa797}
 .s-libre{background:#fde3c8;color:#b45309}.task.libre{background:#fff3e3;border-color:#f3b676}.task.libre:hover{border-color:#e08a2e}
 @media(max-width:700px){.sync{display:none}}
 .b-ok{background:var(--steel)}.b-warn{background:#d69e2e}.b-hi{background:#c0392b}
@@ -144,6 +147,7 @@ const days=t=>t.start?Math.max(1,Math.round((new Date(t.end||f(today))-new Date(
 const dur=t=>{const n=days(t);return n?(n===1?'1 día':n+' días'):'—'};
 const fmt=s=>s?new Date(s).toLocaleDateString('es-ES',{day:'2-digit',month:'short',timeZone:'UTC'}):'—';
 let LIM={warn:5,high:10};
+const isT=t=>!t.tipo||t.tipo==='tarea';
 const nid=()=>Date.now()*10+Math.floor(Math.random()*10);
 const lv=n=>n>=LIM.high?'hi':n>=LIM.warn?'warn':'ok';
 const ini=n=>n.split(' ').map(x=>x[0]).slice(0,2).join('');
@@ -158,8 +162,8 @@ function week(){
 }
 function taskCard(t){
  const n=t.notes[t.notes.length-1];
- return `<div class="task${t.libre?' libre':''}" onclick="openTask(${t.id})">
- <div class="tt"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><span class="chip ${t.libre?'s-libre':'s-'+t.status}">${t.libre?(t.status==='finalizada'?'Periodo cerrado':'Desasignado'):ST[t.status]}</span></div>
+ return `<div class="task${isT(t)?'':' '+t.tipo}" onclick="openTask(${t.id})">
+ <div class="tt"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><span class="chip ${isT(t)?'s-'+t.status:'s-'+t.tipo}">${isT(t)?ST[t.status]:t.tipo==='baja'?(t.status==='finalizada'?'Alta':'De baja'):t.tipo==='vacaciones'?(t.status==='finalizada'?'Vacaciones terminadas':'De vacaciones'):(t.status==='finalizada'?'Periodo cerrado':'Desasignado')}</span></div>
  <div class="meta"><span>⏱ <span class="dur t-${t.status==='finalizada'?'ok':lv(days(t))}">${dur(t)}</span></span><span>Inicio ${fmt(t.start)}</span>${t.end?`<span>Fin ${fmt(t.end)}</span>`:''}</div>
  ${n?`<div class="last"><i>${fmt(n.d)}</i> · ${esc(n.t)}</div>`:''}</div>`;
 }
@@ -167,15 +171,15 @@ function diario(){
  const urg=tasks.filter(t=>t.urgent&&t.status!=='finalizada');
  const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');
  const lbl=new Date(sel).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});
- return `<div class="top"><div><h1>Daily · ${lbl}</h1><div class="sub">${sel===f(today)?'Hoy · ':''}${people.length} personas · ${tasks.filter(t=>t.status==='proceso'&&!t.libre).length} tareas en proceso</div></div>
- <button class="btn" onclick="openTask(0)">+ Nueva tarea</button></div>
+ return `<div class="top"><div><h1>Daily · ${lbl}</h1><div class="sub">${sel===f(today)?'Hoy · ':''}${people.length} personas · ${tasks.filter(t=>t.status==='proceso'&&isT(t)).length} tareas en proceso</div></div>
+ <button class="btn" onclick="openTask(0)">+ Nueva tarjeta</button></div>
  <div class="week">${week()}</div>
  <div class="layout"><div>
  ${urg.length?`<div class="urg"><h3>🔺 Prioritarias</h3>${urg.map(t=>`<div onclick="openTask(${t.id})"><span><b>${esc(t.title)}</b> · ${t.owner?esc(person(t.owner).name):'Sin asignar'}</span><span>${dur(t)}</span></div>`).join('')}</div>`:''}
  <div class="grid">${people.length?'':`<div class="free" style="grid-column:1/-1"><span>Aún no hay equipo. Añade personas en Equipo.</span><button class="btn sm" onclick="loadDemo()">Cargar ejemplo</button></div>`}${people.map(p=>{
   const ts=tasks.filter(t=>t.owner===p.id&&t.status!=='finalizada');
   return `<div class="person" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="drop(event,${p.id})">
-  <div class="ph"><div class="av">${esc(ini(p.name))}</div><div><div class="n">${esc(p.name)}</div><div class="r">${esc(p.role)}</div></div><div style="margin-left:auto;display:flex;gap:6px">${ts.some(t=>t.libre)?'':`<button class="btn ghost sm" title="Registrar que se queda sin tarea" onclick="libre(${p.id})">Sin tarea</button>`}<button class="btn ghost sm" onclick="openTask(0,${p.id})">+ Tarea</button></div></div>
+  <div class="ph"><div class="av">${esc(ini(p.name))}</div><div><div class="n">${esc(p.name)}</div><div class="r">${esc(p.role)}</div></div><button class="btn ghost sm" onclick="openTask(0,${p.id})">+ Añadir</button></div>
   ${ts.length?ts.map(taskCard).join(''):`<div class="free"><span>Sin tarea asignada</span><span style="display:flex;gap:6px"><button class="btn ghost sm" onclick="libre(${p.id})">Registrar</button><button class="btn sm" onclick="pick(${p.id})">Del backlog</button></span></div>`}</div>`}).join('')}</div></div>
  <aside class="side"><h3>Backlog (${bl.length})</h3><div class="sub">Arrastra una tarea sobre una persona</div>
  ${bl.map(t=>`<div class="bl" draggable="true" ondragstart="event.dataTransfer.setData('t',${t.id})">${t.urgent?'🔺 ':''}${esc(t.title)}</div>`).join('')||'<div class="tip">Backlog vacío</div>'}
@@ -195,85 +199,100 @@ function equipo(){
  ${people.map(p=>`<div class="row"><div class="av">${esc(ini(p.name))}</div><div class="grow"><b>${esc(p.name)}</b><div class="sub">${esc(p.role)}</div></div><button class="btn ghost sm" onclick="delP(${p.id})">Quitar</button></div>`).join('')}
  <div class="tip">Datos guardados en un fichero JSON (en esta maqueta solo en memoria).</div>`;
 }
-function idle(p){const e=tasks.filter(t=>t.owner===p.id&&t.end&&!t.libre).map(t=>t.end).sort().pop();return Math.max(0,Math.round((new Date(f(today))-new Date(e||p.alta||f(today)))/864e5))}
+function idle(p){const e=tasks.filter(t=>t.owner===p.id&&t.end&&isT(t)).map(t=>t.end).sort().pop();return Math.max(0,Math.round((new Date(f(today))-new Date(e||p.alta||f(today)))/864e5))}
 function stats(){
- const real=tasks.filter(t=>!t.libre),lib=tasks.filter(t=>t.libre);
+ const real=tasks.filter(isT),lib=tasks.filter(t=>t.tipo==='libre'),baj=tasks.filter(t=>t.tipo==='baja'),vac=tasks.filter(t=>t.tipo==='vacaciones'),sp=tasks.filter(t=>!isT(t));
  const fin=real.filter(t=>t.status==='finalizada');
  const avg=a=>a.length?Math.round(a.reduce((x,t)=>x+days(t),0)/a.length):0;
  const bl=real.filter(t=>!t.owner&&t.status==='pendiente');
  const d=n=>n===1?'1 día':n+' días';
+ const open=t=>t.status!=='finalizada';
  const rows=people.map(p=>{
-  const ts=real.filter(t=>t.owner===p.id),ls=lib.filter(t=>t.owner===p.id);
+  const ts=real.filter(t=>t.owner===p.id),ls=lib.filter(t=>t.owner===p.id),bs=baj.filter(t=>t.owner===p.id),vs=vac.filter(t=>t.owner===p.id);
   const act=ts.filter(t=>t.status==='proceso'||t.status==='parada').sort((a,b)=>days(b)-days(a));
-  const la=ls.find(t=>t.status!=='finalizada'),fn=ts.filter(t=>t.status==='finalizada');
-  return{p,act,la,free:!!la||!act.length,v:la?days(la):act.length?days(act[0]):idle(p),fin:fn.length,med:avg(fn),lt:ls.reduce((x,t)=>x+days(t),0),ln:ls.length}});
+  const la=ls.find(open),ba=bs.find(open),va=vs.find(open),fn=ts.filter(t=>t.status==='finalizada');
+  return{p,act,la,ba,va,free:!ba&&!va&&(!!la||!act.length),v:ba?days(ba):va?days(va):la?days(la):act.length?days(act[0]):idle(p),fin:fn.length,med:avg(fn),lt:ls.reduce((x,t)=>x+days(t),0),ln:ls.length,bt:bs.reduce((x,t)=>x+days(t),0),bn:bs.length,vt:vs.reduce((x,t)=>x+days(t),0),vn:vs.length}});
  const max=Math.max(1,...rows.map(r=>r.v),...tasks.map(days));
  const bar=(n,l)=>`<div class='bar b-${l}' style='width:${Math.max(3,n/max*100)}%'></div>`;
  const all=real.filter(t=>t.owner).slice().sort((a,b)=>days(b)-days(a));
  const lc=lib.filter(t=>t.status==='finalizada');
- return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>Tiempo de desarrollo y tiempo sin tarea por persona</div></div></div>
+ return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>Tiempo de desarrollo, tiempo sin tarea y bajas por persona</div></div></div>
  <div class='kpis'>
  <div class='kpi'><b>${avg(fin)?d(avg(fin)):'—'}</b><span>Tiempo medio por tarea finalizada</span></div>
  <div class='kpi'><b>${real.filter(t=>t.status==='proceso').length}</b><span>En proceso</span></div>
  <div class='kpi'><b>${real.filter(t=>t.status==='parada').length}</b><span>Paradas</span></div>
  <div class='kpi'><b>${rows.filter(r=>r.free).length}</b><span>Personas sin tarea</span></div>
+ <div class='kpi'><b>${rows.filter(r=>r.ba).length}</b><span>De baja</span></div>
+ <div class='kpi'><b>${rows.filter(r=>r.va).length}</b><span>De vacaciones</span></div>
  <div class='kpi'><b>${lc.length?d(avg(lc)):'—'}</b><span>Tiempo medio hasta asignar tarea</span></div>
  <div class='kpi'><b>${bl.length}</b><span>Pendientes de asignar</span></div></div>
  <div class='th'>Azul = normal · Ámbar desde <input type='number' min='1' value='${LIM.warn}' onchange='LIM.warn=+this.value||1;draw()'> días · Rojo desde <input type='number' min='1' value='${LIM.high}' onchange='LIM.high=+this.value||1;draw()'> días</div>
- <div class='tw'><table><tr><th>Persona</th><th>Situación actual</th><th style='width:20%'>Tiempo</th><th>Finalizadas</th><th>Media días/tarea</th><th>Total sin tarea</th></tr>
- ${rows.map(r=>{const l=lv(r.v);return `<tr><td><b>${esc(r.p.name)}</b><div class='sub'>${esc(r.p.role)}</div></td>
- <td>${r.act.map(t=>`<div><span class='lnk' onclick='openTask(${t.id})'>${esc(t.title)}</span> <span class='sub'>· ${d(days(t))}${t.status==='parada'?' · parada':''}</span></div>`).join('')}${r.la?`<div><span class='chip s-libre'>Desasignado</span> <span class='lnk' onclick='openTask(${r.la.id})'>desde ${fmt(r.la.start)}</span> <span class='sub'>· ${d(days(r.la))}</span></div>`:r.act.length?'':`<b class='t-${l}'>Sin tarea</b> <span class='sub'>· desde hace ${d(r.v)} (sin registrar)</span>`}</td>
- <td>${bar(r.v,l)}<div class='sub t-${l}'>${d(r.v)}</div></td><td>${r.fin}</td><td>${r.med||'—'}</td><td>${r.ln?d(r.lt)+` <span class='sub'>· ${r.ln} ${r.ln===1?'periodo':'periodos'}</span>`:'—'}</td></tr>`}).join('')}</table></div>
- ${lib.length?`<h3 style='color:var(--steel-d)'>Periodos sin tarea</h3><div class='tw'><table><tr><th>Persona</th><th>Desde</th><th>Hasta</th><th style='width:30%'>Tiempo</th></tr>
- ${lib.slice().sort((a,b)=>b.start.localeCompare(a.start)).map(t=>`<tr><td><span class='lnk' onclick='openTask(${t.id})'>${esc(person(t.owner)?.name||'—')}</span></td><td>${fmt(t.start)}</td><td>${t.end?fmt(t.end):`<span class='chip s-libre'>En curso</span>`}</td><td>${bar(days(t),t.status==='finalizada'?'ok':lv(days(t)))}<div class='sub'>${d(days(t))}</div></td></tr>`).join('')}</table></div>`:''}
+ <div class='tw'><table><tr><th>Persona</th><th>Situación actual</th><th style='width:20%'>Tiempo</th><th>Finalizadas</th><th>Media días/tarea</th><th>Total sin tarea · ausencias</th></tr>
+ ${rows.map(r=>{const l=r.ba||r.va?'ok':lv(r.v);return `<tr><td><b>${esc(r.p.name)}</b><div class='sub'>${esc(r.p.role)}</div></td>
+ <td>${r.ba?`<div><span class='chip s-baja'>De baja</span> <span class='lnk' onclick='openTask(${r.ba.id})'>desde ${fmt(r.ba.start)}</span> <span class='sub'>· ${d(days(r.ba))}</span></div>`:''}${r.va?`<div><span class='chip s-vacaciones'>De vacaciones</span> <span class='lnk' onclick='openTask(${r.va.id})'>desde ${fmt(r.va.start)}</span> <span class='sub'>· ${d(days(r.va))}</span></div>`:''}${r.act.map(t=>`<div><span class='lnk' onclick='openTask(${t.id})'>${esc(t.title)}</span> <span class='sub'>· ${d(days(t))}${t.status==='parada'?' · parada':''}</span></div>`).join('')}${r.la?`<div><span class='chip s-libre'>Desasignado</span> <span class='lnk' onclick='openTask(${r.la.id})'>desde ${fmt(r.la.start)}</span> <span class='sub'>· ${d(days(r.la))}</span></div>`:(r.act.length||r.ba||r.va)?'':`<b class='t-${l}'>Sin tarea</b> <span class='sub'>· desde hace ${d(r.v)} (sin registrar)</span>`}</td>
+ <td>${bar(r.v,l)}<div class='sub t-${l}'>${d(r.v)}</div></td><td>${r.fin}</td><td>${r.med||'—'}</td><td>${r.ln?d(r.lt)+` <span class='sub'>· ${r.ln} ${r.ln===1?'periodo':'periodos'}</span>`:'—'}${r.bn?`<div class='sub'>Baja: ${d(r.bt)}</div>`:''}${r.vn?`<div class='sub'>Vacaciones: ${d(r.vt)}</div>`:''}</td></tr>`}).join('')}</table></div>
+ ${sp.length?`<h3 style='color:var(--steel-d)'>Periodos sin tarea, bajas y vacaciones</h3><div class='tw'><table><tr><th>Persona</th><th>Tipo</th><th>Desde</th><th>Hasta</th><th style='width:28%'>Tiempo</th></tr>
+ ${sp.slice().sort((a,b)=>b.start.localeCompare(a.start)).map(t=>`<tr><td><span class='lnk' onclick='openTask(${t.id})'>${esc(person(t.owner)?.name||'—')}</span></td><td><span class='chip s-${t.tipo}'>${{baja:'Baja',vacaciones:'Vacaciones'}[t.tipo]||'Sin tarea'}</span></td><td>${fmt(t.start)}</td><td>${t.end?fmt(t.end):`<span class='chip s-${t.tipo}'>En curso</span>`}</td><td>${bar(days(t),t.tipo!=='libre'||t.status==='finalizada'?'ok':lv(days(t)))}<div class='sub'>${d(days(t))}</div></td></tr>`).join('')}</table></div>`:''}
  <h3 style='color:var(--steel-d)'>Tiempo por tarea</h3>
  <div class='tw'><table><tr><th>Tarea</th><th>Persona</th><th>Estado</th><th style='width:28%'>Tiempo</th></tr>
  ${all.map(t=>{const l=t.status==='finalizada'?'ok':lv(days(t));return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${t.urgent?'🔺 ':''}${esc(t.title)}</span></td><td>${esc(person(t.owner).name)}</td><td><span class='chip s-${t.status}'>${ST[t.status]}</span></td><td>${bar(days(t),l)}<div class='sub'>${d(days(t))}</div></td></tr>`}).join('')}</table></div>
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-function draw(){$('#main').innerHTML={diario,backlog,equipo,stats}[view]()}
+const VER='0.6.0',BUILD='19 oct 2026';
+const LOGS=[['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+function openLog(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
+const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
+function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
+ if(!init&&(!ti.value.trim()||Object.values(TD).includes(ti.value)))ti.value=TD[k]||'';
+ $('#f-dw').style.display=sp?'none':'';$('#f-uw').style.display=sp?'none':'';
+ const sv=$('#f-s').value,fs=$('#f-s');
+ fs.innerHTML=(sp?[['proceso','En curso'],['finalizada',k==='baja'?'Alta (finalizada)':k==='vacaciones'?'Vuelta (finalizada)':'Cerrado (finalizada)']]:Object.entries(ST)).map(([a,b])=>`<option value="${a}">${b}</option>`).join('');
+ fs.value=[...fs.options].some(o=>o.value===sv)?sv:'proceso'}
+function norm(){tasks.forEach(t=>{if(!t.tipo)t.tipo=t.libre?'libre':'tarea';delete t.libre})}
+function draw(){$('#main').innerHTML={diario,backlog,equipo,stats}[view]()+`<footer class="foot" onclick="openLog()">Daily Tracker · v${VER} beta · ${BUILD} · ver novedades</footer>`}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;draw()});
 
 function drop(e,pid){e.preventDefault();assign(+e.dataTransfer.getData('t'),pid)}
 function assign(id,pid){if(!pid)return;const t=tasks.find(x=>x.id===id);closeLibre(+pid,f(today));t.owner=+pid;t.status='proceso';t.start=f(today);t.notes.push({d:f(today),t:'Asignada desde el backlog'});commit()}
 function pick(pid){const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');if(bl[0])assign(bl[0].id,pid)}
 function addP(){const n=$('#pn').value.trim();if(!n)return;people.push({id:nid(),name:n,role:$('#pr').value.trim()||'—',alta:f(today)});commit()}
-function delP(id){people=people.filter(p=>p.id!==id);tasks=tasks.filter(t=>!(t.libre&&t.owner===id));tasks.forEach(t=>{if(t.owner===id){t.owner=null;t.status='pendiente'}});commit()}
+function delP(id){people=people.filter(p=>p.id!==id);tasks=tasks.filter(t=>!(!isT(t)&&t.owner===id));tasks.forEach(t=>{if(t.owner===id){t.owner=null;t.status='pendiente'}});commit()}
 
 function openTask(id,owner){
  const t=id?tasks.find(x=>x.id===id):{title:'',desc:'',start:f(today),end:'',status:owner===null?'pendiente':'proceso',owner:owner??null,urgent:false,notes:[]};
  const d=$('#dlg');
- d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">${id?'Tarea':'Nueva tarea'}</h2>
+ d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">${id?'Tarjeta':'Nueva tarjeta'}</h2>
+ <label>Tipo de tarjeta</label><select id="f-k" onchange="tipoChg()">${[['tarea','Tarea'],['libre','Sin tarea (desasignado)'],['baja','De baja'],['vacaciones','Vacaciones']].map(([k,v])=>`<option value="${k}" ${k===(t.tipo||'tarea')?'selected':''}>${v}</option>`).join('')}</select>
  <label>Título</label><input id="f-t" value="${esc(t.title)}">
- <label>Descripción</label><textarea id="f-d" rows="2">${esc(t.desc)}</textarea>
+ <div id="f-dw"><label>Descripción</label><textarea id="f-d" rows="2">${esc(t.desc)}</textarea></div>
  <div class="two"><div><label>Persona</label><select id="f-o"><option value="">Backlog (sin asignar)</option>${people.map(p=>`<option value="${p.id}" ${p.id===t.owner?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>
  <div><label>Estado</label><select id="f-s">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k===t.status?'selected':''}>${v}</option>`).join('')}</select></div>
  <div><label>Fecha inicio</label><input type="date" id="f-i" value="${t.start}"></div>
  <div><label>Fecha fin</label><input type="date" id="f-e" value="${t.end}"></div></div>
- <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-u" style="width:auto" ${t.urgent?'checked':''}> Prioritaria / urgente</label>
+ <label id="f-uw" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-u" style="width:auto" ${t.urgent?'checked':''}> Prioritaria / urgente</label>
  <label>Seguimiento diario</label>
  <div class="tw" style="margin:0;max-height:230px;overflow:auto"><table style="min-width:0"><thead><tr><th>Fecha</th><th>Comentario</th><th></th></tr></thead><tbody id="nt"></tbody></table></div>
  <button class="btn ghost sm" style="margin-top:8px" onclick="ntAdd()">+ Añadir línea</button>
  <div class="acts">${id?`<button class="btn ghost" style="margin-right:auto" onclick="del(${id})">Eliminar</button>`:''}<button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="save(${id})">Guardar</button></div>`;
- nd=t.notes.map(n=>({...n}));nd.push({d:sel,t:''});ntDraw();d.showModal();
+ nd=t.notes.map(n=>({...n}));nd.push({d:sel,t:''});ntDraw();d.showModal();tipoChg(1);
 }
 let nd=[];
 function ntDraw(){$('#nt').innerHTML=nd.map((n,i)=>`<tr><td style="width:140px;padding:4px"><input type="date" value="${esc(n.d)}" onchange="nd[${i}].d=this.value"></td><td style="padding:4px"><input value="${esc(n.t)}" placeholder="Ej.: continúa por problema X" oninput="nd[${i}].t=this.value"></td><td style="width:40px;padding:4px"><button class="btn ghost sm" title="Quitar línea" onclick="nd.splice(${i},1);ntDraw()">✕</button></td></tr>`).join('')}
 function ntAdd(){nd.push({d:sel,t:''});ntDraw();const x=document.querySelectorAll('#nt input[placeholder]');x[x.length-1].focus()}
 function save(id){
  const title=$('#f-t').value.trim();if(!title)return;
- const o=$('#f-o').value;let st=$('#f-s').value,end=$('#f-e').value;
+ const o=$('#f-o').value,k=$('#f-k').value;if(k!=='tarea'&&!o){alert('Elige la persona a la que se aplica esta tarjeta.');return}let st=$('#f-s').value,end=$('#f-e').value;
  if(st==='finalizada'&&!end)end=f(today);
- const base={title,desc:$('#f-d').value,owner:o?+o:null,status:o?st:'pendiente',start:$('#f-i').value,end,urgent:$('#f-u').checked};
- let t;if(id){t=tasks.find(x=>x.id===id);Object.assign(t,base)}else{t={id:nid(),notes:[],...base};tasks.push(t);if(t.owner)closeLibre(t.owner,t.start||f(today))}
+ const base={title,desc:$('#f-d').value,owner:o?+o:null,status:o?st:'pendiente',start:$('#f-i').value,end,urgent:k==='tarea'&&$('#f-u').checked,tipo:k};
+ let t;if(id){t=tasks.find(x=>x.id===id);Object.assign(t,base)}else{t={id:nid(),notes:[],...base};tasks.push(t);if(t.owner&&k==='tarea')closeLibre(t.owner,t.start||f(today))}
  t.notes=nd.filter(n=>n.t.trim()).map(n=>({d:n.d||sel,t:n.t.trim()})).sort((a,b)=>a.d.localeCompare(b.d));
  $('#dlg').close();commit();
 }
-function closeLibre(pid,date){tasks.filter(t=>t.libre&&t.owner===pid&&t.status!=='finalizada').forEach(t=>{t.status='finalizada';t.end=date;t.notes.push({d:date,t:'Se le asigna tarea'})})}
-function libre(pid){if(tasks.some(t=>t.libre&&t.owner===pid&&t.status!=='finalizada'))return;tasks.push({id:nid(),title:'Sin tarea asignada',desc:'',start:sel,end:'',status:'proceso',owner:pid,urgent:false,libre:true,notes:[]});commit()}
+function closeLibre(pid,date){tasks.filter(t=>t.tipo==='libre'&&t.owner===pid&&t.status!=='finalizada').forEach(t=>{t.status='finalizada';t.end=date;t.notes.push({d:date,t:'Se le asigna tarea'})})}
+function libre(pid){if(tasks.some(t=>t.tipo==='libre'&&t.owner===pid&&t.status!=='finalizada'))return;tasks.push({id:nid(),title:'Sin tarea asignada',desc:'',start:sel,end:'',status:'proceso',owner:pid,urgent:false,tipo:'libre',notes:[]});commit()}
 function del(id){if(!confirm('¿Eliminar la tarea?'))return;tasks=tasks.filter(t=>t.id!==id);$('#dlg').close();commit()}
-function loadDemo(){const o=JSON.parse(DEMO);people=o.people;tasks=o.tasks;commit()}
+function loadDemo(){const o=JSON.parse(DEMO);people=o.people;tasks=o.tasks;norm();commit()}
 
 /* Persistencia: caché local + data.json en GitHub (API Contents) */
 let cfg={};try{cfg=JSON.parse(localStorage.getItem('dt_cfg')||'{}')}catch(e){}
@@ -294,7 +313,7 @@ async function pull(){
   if(!r.ok)throw new Error(r.status);
   const j=await r.json();sha=j.sha;
   const o=JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
-  people=o.people||[];tasks=o.tasks||[];cache();setSt('ok','☁ Sincronizado '+hora());
+  people=o.people||[];tasks=o.tasks||[];norm();cache();setSt('ok','☁ Sincronizado '+hora());
   if(!$('#dlg').open)draw()}catch(e){setSt('err','Error al leer ('+e.message+')')}}
 async function push(){
  if(!linked())return;if(pushing){queued=true;return}
@@ -315,7 +334,7 @@ function openCfg(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(
 <div class="acts"><button class="btn ghost" style="margin-right:auto" onclick="saveCfg(1)">Desconectar</button><button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="saveCfg()">Guardar y sincronizar</button></div>`;d.showModal()}
 function saveCfg(x){cfg=x?{}:{repo:$('#c-r').value.trim(),token:$('#c-t').value.trim(),path:$('#c-p').value.trim()||'data.json',branch:$('#c-b').value.trim()};localStorage.setItem('dt_cfg',JSON.stringify(cfg));sha=null;$('#dlg').close();draw();pull()}
 
-try{const c=JSON.parse(localStorage.getItem('dt_cache')||'null');if(c){people=c.people||[];tasks=c.tasks||[]}}catch(e){}
+try{const c=JSON.parse(localStorage.getItem('dt_cache')||'null');if(c){people=c.people||[];tasks=c.tasks||[];norm()}}catch(e){}
 draw();pull();
 setInterval(()=>{if(!dirty&&!pushing&&!$('#dlg').open)pull()},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!dirty&&!$('#dlg').open)pull()});

@@ -23,4 +23,4 @@ PWA sin servidor: la app se publica en GitHub Pages y los datos viven en un `dat
 
 ## Actualizar la app
 
-Sube los ficheros nuevos y cambia `V='dt-v1'` por `dt-v2` en `sw.js` para que los dispositivos descarguen la versión nueva.
+Sube los ficheros nuevos y cambia `V='dt-v2'` por `dt-v2` en `sw.js` para que los dispositivos descarguen la versión nueva.

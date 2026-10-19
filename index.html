@@ -70,7 +70,7 @@ input,select,textarea{width:100%;background:var(--card);border:1px solid var(--l
 label{display:block;font-size:12px;color:var(--mute);margin:10px 0 3px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .form{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}.form input{flex:1;min-width:140px}
-dialog{border:0;border-radius:18px;padding:18px;width:min(520px,94vw);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog{border:0;border-radius:18px;padding:18px;width:min(660px,94vw);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
 dialog::backdrop{background:rgba(20,35,55,.45)}
 .notes{max-height:150px;overflow:auto;margin-top:6px}
 .notes div{font-size:13px;padding:4px 0;border-bottom:1px solid var(--line)}.notes i{font-style:normal;color:var(--steel);font-weight:600}
@@ -262,18 +262,22 @@ function openTask(id,owner){
  <div><label>Fecha inicio</label><input type="date" id="f-i" value="${t.start}"></div>
  <div><label>Fecha fin</label><input type="date" id="f-e" value="${t.end}"></div></div>
  <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-u" style="width:auto" ${t.urgent?'checked':''}> Prioritaria / urgente</label>
- ${id?`<label>Seguimiento</label><div class="notes">${t.notes.slice().reverse().map(n=>`<div><i>${fmt(n.d)}</i> · ${esc(n.t)}</div>`).join('')||'<div>Sin comentarios</div>'}</div>`:''}
- <label>Añadir línea de seguimiento (${fmt(sel)})</label><input id="f-n" placeholder="Ej.: continúa por problema X">
+ <label>Seguimiento diario</label>
+ <div class="tw" style="margin:0;max-height:230px;overflow:auto"><table style="min-width:0"><thead><tr><th>Fecha</th><th>Comentario</th><th></th></tr></thead><tbody id="nt"></tbody></table></div>
+ <button class="btn ghost sm" style="margin-top:8px" onclick="ntAdd()">+ Añadir línea</button>
  <div class="acts">${id?`<button class="btn ghost" style="margin-right:auto" onclick="del(${id})">Eliminar</button>`:''}<button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="save(${id})">Guardar</button></div>`;
- d.showModal();
+ nd=t.notes.map(n=>({...n}));nd.push({d:sel,t:''});ntDraw();d.showModal();
 }
+let nd=[];
+function ntDraw(){$('#nt').innerHTML=nd.map((n,i)=>`<tr><td style="width:140px;padding:4px"><input type="date" value="${esc(n.d)}" onchange="nd[${i}].d=this.value"></td><td style="padding:4px"><input value="${esc(n.t)}" placeholder="Ej.: continúa por problema X" oninput="nd[${i}].t=this.value"></td><td style="width:40px;padding:4px"><button class="btn ghost sm" title="Quitar línea" onclick="nd.splice(${i},1);ntDraw()">✕</button></td></tr>`).join('')}
+function ntAdd(){nd.push({d:sel,t:''});ntDraw();const x=document.querySelectorAll('#nt input[placeholder]');x[x.length-1].focus()}
 function save(id){
  const title=$('#f-t').value.trim();if(!title)return;
  const o=$('#f-o').value;let st=$('#f-s').value,end=$('#f-e').value;
  if(st==='finalizada'&&!end)end=f(today);
  const base={title,desc:$('#f-d').value,owner:o?+o:null,status:o?st:'pendiente',start:$('#f-i').value,end,urgent:$('#f-u').checked};
  let t;if(id){t=tasks.find(x=>x.id===id);Object.assign(t,base)}else{t={id:nid(),notes:[],...base};tasks.push(t)}
- const n=$('#f-n').value.trim();if(n)t.notes.push({d:sel,t:n});
+ t.notes=nd.filter(n=>n.t.trim()).map(n=>({d:n.d||sel,t:n.t.trim()})).sort((a,b)=>a.d.localeCompare(b.d));
  $('#dlg').close();commit();
 }
 function del(id){if(!confirm('¿Eliminar la tarea?'))return;tasks=tasks.filter(t=>t.id!==id);$('#dlg').close();commit()}

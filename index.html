@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daily Tracker</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#4a6fa5">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f4f7fa;--card:#fff;--ink:#1f2d3d;--mute:#6b7c8f;--line:#dde5ee;--steel:#4a6fa5;--steel-d:#2f4e7c;--steel-l:#e6edf6;
+--ok:#2e8b6a;--okb:#e3f4ed;--warn:#b7791f;--warnb:#fdf1da;--stop:#7a8794;--stopb:#eceff2;--urg:#c0392b;--urgb:#fbe9e7;
+padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;color-scheme:light}
+@media (prefers-color-scheme:none){:root:not([data-theme="light"]){color-scheme:dark;--bg:#121a24;--card:#1b2633;--ink:#e6edf5;--mute:#93a3b5;--line:#2b394a;--steel:#7ea3d6;--steel-d:#a9c4ea;--steel-l:#233349;--okb:#16342a;--warnb:#3a2f17;--stopb:#27313c;--urgb:#3d2320}}
+:root[data-theme="none"]{color-scheme:dark;--bg:#121a24;--card:#1b2633;--ink:#e6edf5;--mute:#93a3b5;--line:#2b394a;--steel:#7ea3d6;--steel-d:#a9c4ea;--steel-l:#233349;--okb:#16342a;--warnb:#3a2f17;--stopb:#27313c;--urgb:#3d2320}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:200px 1fr;min-height:100%}
+nav{background:var(--card);border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.logo{font-weight:700;color:var(--steel-d);padding:0 8px 14px;font-size:17px}
+.logo span{color:var(--steel)}
+nav button{display:flex;gap:10px;align-items:center;background:none;border:0;padding:10px;border-radius:10px;cursor:pointer;color:var(--mute);text-align:left}
+nav button.on{background:var(--steel-l);color:var(--steel-d);font-weight:600}
+main{padding:18px 22px 90px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+h1{font-size:20px;margin:0;color:var(--steel-d)}
+.sub{color:var(--mute);font-size:13px}
+.btn{background:var(--steel);color:#fff;border:0;border-radius:9px;padding:8px 14px;cursor:pointer;font-weight:600}
+.btn.ghost{background:var(--steel-l);color:var(--steel-d)}
+.btn.sm{padding:4px 10px;font-size:13px}
+.week{display:flex;gap:6px;align-items:center;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+.day{flex:1;min-width:52px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 4px;cursor:pointer}
+.day small{display:block;color:var(--mute);text-transform:uppercase;font-size:11px}
+.day b{font-size:16px}
+.day.today small{color:var(--steel)}
+.day.sel{background:var(--steel);border-color:var(--steel);color:#fff}.day.sel small{color:#dfe9f7}
+.arrow{background:var(--card);border:1px solid var(--line);border-radius:10px;width:34px;height:44px;cursor:pointer}
+.layout{display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start}
+.urg{background:var(--urgb);border:1px solid color-mix(in srgb,var(--urg) 30%,transparent);border-radius:14px;padding:10px 14px;margin-bottom:16px}
+.urg h3{margin:0 0 6px;font-size:13px;color:var(--urg);text-transform:uppercase;letter-spacing:.04em}
+.urg div{display:flex;justify-content:space-between;gap:8px;padding:4px 0;cursor:pointer;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.person{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;transition:.15s}
+.person.over{outline:2px dashed var(--steel);background:var(--steel-l)}
+.ph{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.av{width:38px;height:38px;border-radius:50%;background:var(--steel);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+.ph .n{font-weight:600}.ph .r{font-size:12px;color:var(--mute)}
+.ph .btn{margin-left:auto}
+.task{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer;background:var(--bg)}
+.task:hover{border-color:var(--steel)}
+.tt{display:flex;justify-content:space-between;gap:8px;align-items:start}
+.tt b{font-size:14px}
+.chip{font-size:11px;font-weight:600;border-radius:20px;padding:2px 8px;white-space:nowrap}
+.s-proceso{background:var(--okb);color:var(--ok)}.s-parada{background:var(--stopb);color:var(--stop)}
+.s-pendiente{background:var(--warnb);color:var(--warn)}.s-finalizada{background:var(--steel-l);color:var(--steel-d)}
+.meta{display:flex;gap:10px;font-size:12px;color:var(--mute);margin-top:6px;align-items:center}
+.dur{font-weight:700;color:var(--steel-d)}
+.last{font-size:12.5px;margin-top:6px;color:var(--ink);border-left:3px solid var(--steel);padding-left:8px}
+.last i{color:var(--mute);font-style:normal}
+.free{border:1px dashed var(--warn);background:var(--warnb);color:var(--warn);border-radius:12px;padding:10px;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.side{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;position:sticky;top:12px}
+.side h3{margin:0 0 4px;font-size:15px;color:var(--steel-d)}
+.bl{border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:8px;cursor:grab;background:var(--bg);font-size:13px}
+.bl:active{cursor:grabbing}
+.row{display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.row .grow{flex:1;min-width:0}
+input,select,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px}
+label{display:block;font-size:12px;color:var(--mute);margin:10px 0 3px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}.form input{flex:1;min-width:140px}
+dialog{border:0;border-radius:18px;padding:18px;width:min(520px,94vw);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(20,35,55,.45)}
+.notes{max-height:150px;overflow:auto;margin-top:6px}
+.notes div{font-size:13px;padding:4px 0;border-bottom:1px solid var(--line)}.notes i{font-style:normal;color:var(--steel);font-weight:600}
+.acts{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.tip{font-size:12px;color:var(--mute);margin-top:8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.kpi b{display:block;font-size:24px;color:var(--steel-d)}.kpi span{font-size:12px;color:var(--mute)}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:16px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border-bottom:0}
+.bar{height:8px;border-radius:4px;background:var(--steel)}
+.sync{margin-top:auto;font-size:12px;padding:8px 10px;border-radius:10px;cursor:pointer;background:var(--steel-l);color:var(--steel-d)}.sync.err{background:var(--urgb);color:var(--urg)}.sync.busy{color:var(--mute)}
+@media(max-width:700px){.sync{display:none}}
+.b-ok{background:var(--steel)}.b-warn{background:#d69e2e}.b-hi{background:#c0392b}
+.t-ok{color:var(--steel-d)}.t-warn{color:#b7791f}.t-hi{color:#c0392b}
+.lnk{cursor:pointer;color:var(--steel-d);font-weight:600}.lnk:hover{text-decoration:underline}
+.th{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-bottom:12px}.th input{width:64px}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}.side{display:none}}
+@media(max-width:700px){
+.app{grid-template-columns:1fr}
+nav{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;flex-direction:row;justify-content:space-around;border-right:0;border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav button{flex-direction:column;gap:2px;font-size:11px;padding:6px 10px;align-items:center}.logo{display:none}
+main{padding:14px 12px 90px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+ <div class="logo">Daily<span>Tracker</span></div>
+ <button data-v="diario" class="on">📋 Diario</button>
+ <button data-v="backlog">🗂️ Backlog</button>
+ <button data-v="stats">📊 Estadísticas</button>
+ <button data-v="equipo">⚙️ Equipo</button>
+ <div id="sync" class="sync" onclick="openCfg()">Local</div>
+</nav>
+<main id="main"></main>
+</div>
+
+<dialog id="dlg"></dialog>
+
+<script>
+const $=s=>document.querySelector(s);
+const f=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today=new Date();today.setHours(0,0,0,0);
+const off=n=>{const d=new Date(today);d.setDate(d.getDate()+n);return f(d)};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ST={proceso:'En proceso',parada:'Parada',pendiente:'Pendiente',finalizada:'Finalizada'};
+let view='diario',sel=f(today),wk=0,uid=100;
+
+// Datos de ejemplo (en la app real: JSON)
+let people=[
+ {id:1,name:'Laura Gómez',role:'Backend'},{id:2,name:'Carlos Ruiz',role:'Frontend'},
+ {id:3,name:'Marta Peña',role:'QA'},{id:4,name:'Iván Soto',role:'DevOps'},
+ {id:5,name:'Ana Vidal',role:'Backend'},{id:6,name:'Pablo Díaz',role:'Analista'}];
+let tasks=[
+ {id:1,title:'API de facturación',desc:'Endpoints de emisión y anulación',start:off(-6),end:'',status:'proceso',owner:1,urgent:true,notes:[{d:off(-6),t:'Arranca el diseño'},{d:off(-1),t:'Continúa: problemas con el entorno de pruebas'},{d:off(0),t:'Pendiente de revisión de contrato'}]},
+ {id:2,title:'Pantalla de informes',desc:'Filtros y exportación',start:off(-3),end:'',status:'proceso',owner:2,urgent:false,notes:[{d:off(-3),t:'Maqueta aprobada'}]},
+ {id:3,title:'Regresión release 4.2',desc:'Casos críticos',start:off(-2),end:'',status:'proceso',owner:3,urgent:true,notes:[{d:off(-2),t:'20 de 60 casos ejecutados'}]},
+ {id:4,title:'Pipeline de despliegue',desc:'Migrar a nuevo agente',start:off(-9),end:'',status:'parada',owner:4,urgent:false,notes:[{d:off(-5),t:'Parada: esperando permisos'}]},
+ {id:5,title:'Migración de usuarios',desc:'Script de carga',start:off(-12),end:off(-4),status:'finalizada',owner:5,urgent:false,notes:[]},
+ {id:6,title:'Notificaciones por email',desc:'Plantillas y colas',start:'',end:'',status:'pendiente',owner:null,urgent:false,notes:[]},
+ {id:7,title:'Revisar logs de producción',desc:'Picos de errores 500',start:'',end:'',status:'pendiente',owner:null,urgent:true,notes:[]},
+ {id:8,title:'Documentar API pública',desc:'',start:'',end:'',status:'pendiente',owner:null,urgent:false,notes:[]}];
+
+const DEMO=JSON.stringify({people,tasks});people=[];tasks=[];
+const days=t=>t.start?Math.max(1,Math.round((new Date(t.end||f(today))-new Date(t.start))/864e5)+1):0;
+const dur=t=>{const n=days(t);return n?(n===1?'1 día':n+' días'):'—'};
+const fmt=s=>s?new Date(s).toLocaleDateString('es-ES',{day:'2-digit',month:'short',timeZone:'UTC'}):'—';
+let LIM={warn:5,high:10};
+const nid=()=>Date.now()*10+Math.floor(Math.random()*10);
+const lv=n=>n>=LIM.high?'hi':n>=LIM.warn?'warn':'ok';
+const ini=n=>n.split(' ').map(x=>x[0]).slice(0,2).join('');
+const person=id=>people.find(p=>p.id===id);
+
+function week(){
+ const base=new Date(today);const dow=(base.getDay()+6)%7;base.setDate(base.getDate()-dow+wk*7);
+ let h='<button class="arrow" onclick="wk--;draw()">‹</button>';
+ for(let i=0;i<7;i++){const d=new Date(base);d.setDate(base.getDate()+i);const k=f(d);
+  h+=`<div class="day ${k===f(today)?'today':''} ${k===sel?'sel':''}" onclick="sel='${k}';draw()"><small>${d.toLocaleDateString('es-ES',{weekday:'short'})}</small><b>${d.getDate()}</b></div>`}
+ return h+'<button class="arrow" onclick="wk++;draw()">›</button>';
+}
+function taskCard(t){
+ const n=t.notes[t.notes.length-1];
+ return `<div class="task" onclick="openTask(${t.id})">
+ <div class="tt"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><span class="chip s-${t.status}">${ST[t.status]}</span></div>
+ <div class="meta"><span>⏱ <span class="dur t-${t.status==='finalizada'?'ok':lv(days(t))}">${dur(t)}</span></span><span>Inicio ${fmt(t.start)}</span>${t.end?`<span>Fin ${fmt(t.end)}</span>`:''}</div>
+ ${n?`<div class="last"><i>${fmt(n.d)}</i> · ${esc(n.t)}</div>`:''}</div>`;
+}
+function diario(){
+ const urg=tasks.filter(t=>t.urgent&&t.status!=='finalizada');
+ const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');
+ const lbl=new Date(sel).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});
+ return `<div class="top"><div><h1>Daily · ${lbl}</h1><div class="sub">${sel===f(today)?'Hoy · ':''}${people.length} personas · ${tasks.filter(t=>t.status==='proceso').length} tareas en proceso</div></div>
+ <button class="btn" onclick="openTask(0)">+ Nueva tarea</button></div>
+ <div class="week">${week()}</div>
+ <div class="layout"><div>
+ ${urg.length?`<div class="urg"><h3>🔺 Prioritarias</h3>${urg.map(t=>`<div onclick="openTask(${t.id})"><span><b>${esc(t.title)}</b> · ${t.owner?esc(person(t.owner).name):'Sin asignar'}</span><span>${dur(t)}</span></div>`).join('')}</div>`:''}
+ <div class="grid">${people.length?'':`<div class="free" style="grid-column:1/-1"><span>Aún no hay equipo. Añade personas en Equipo.</span><button class="btn sm" onclick="loadDemo()">Cargar ejemplo</button></div>`}${people.map(p=>{
+  const ts=tasks.filter(t=>t.owner===p.id&&t.status!=='finalizada');
+  return `<div class="person" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="drop(event,${p.id})">
+  <div class="ph"><div class="av">${esc(ini(p.name))}</div><div><div class="n">${esc(p.name)}</div><div class="r">${esc(p.role)}</div></div><button class="btn ghost sm" onclick="openTask(0,${p.id})">+ Tarea</button></div>
+  ${ts.length?ts.map(taskCard).join(''):`<div class="free"><span>Sin tarea asignada</span><button class="btn sm" onclick="pick(${p.id})">Del backlog</button></div>`}</div>`}).join('')}</div></div>
+ <aside class="side"><h3>Backlog (${bl.length})</h3><div class="sub">Arrastra una tarea sobre una persona</div>
+ ${bl.map(t=>`<div class="bl" draggable="true" ondragstart="event.dataTransfer.setData('t',${t.id})">${t.urgent?'🔺 ':''}${esc(t.title)}</div>`).join('')||'<div class="tip">Backlog vacío</div>'}
+ </aside></div>`;
+}
+function backlog(){
+ const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');
+ return `<div class="top"><div><h1>Backlog</h1><div class="sub">Tareas pendientes de asignar</div></div><button class="btn" onclick="openTask(0,null)">+ Añadir al backlog</button></div>
+ ${bl.map(t=>`<div class="row"><div class="grow"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><div class="sub">${esc(t.desc)||'Sin descripción'}</div></div>
+ <select style="width:150px" onchange="assign(${t.id},this.value)"><option value="">Asignar a…</option>${people.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select>
+ <button class="btn ghost sm" onclick="openTask(${t.id})">Editar</button></div>`).join('')||'<div class="tip">No hay tareas en el backlog.</div>'}`;
+}
+function equipo(){
+ return `<div class="top"><div><h1>Configuración · Equipo</h1><div class="sub">Alta de personas del proyecto</div></div></div>
+ <div class="row"><div class="grow"><b>Sincronización con GitHub</b><div class="sub">${cfg.repo?esc(cfg.repo):'No configurada · los datos solo están en este navegador'}</div></div><button class="btn ghost sm" onclick="openCfg()">Configurar</button></div>
+ <div class="form"><input id="pn" placeholder="Nombre"><input id="pr" placeholder="Rol (Backend, QA…)"><button class="btn" onclick="addP()">Añadir</button></div>
+ ${people.map(p=>`<div class="row"><div class="av">${esc(ini(p.name))}</div><div class="grow"><b>${esc(p.name)}</b><div class="sub">${esc(p.role)}</div></div><button class="btn ghost sm" onclick="delP(${p.id})">Quitar</button></div>`).join('')}
+ <div class="tip">Datos guardados en un fichero JSON (en esta maqueta solo en memoria).</div>`;
+}
+function statsOld(){
+ const rows=people.map(p=>{const ts=tasks.filter(t=>t.owner===p.id);const fin=ts.filter(t=>t.status==='finalizada');
+  return{p,act:ts.filter(t=>t.status==='proceso').length,par:ts.filter(t=>t.status==='parada').length,fin:fin.length,
+  d:ts.reduce((a,t)=>a+days(t),0),c:ts.reduce((a,t)=>a+cost(t),0),med:fin.length?Math.round(fin.reduce((a,t)=>a+days(t),0)/fin.length):0}});
+ const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');
+ const max=Math.max(1,...rows.map(r=>r.d));
+ const tot=rows.reduce((a,r)=>a+r.c,0);
+ return `<div class="top"><div><h1>Estadísticas por persona</h1><div class="sub">Coste = días en la tarea × coste/día de la persona (configurable en Equipo)</div></div></div>
+ <div class="kpis"><div class="kpi"><b>${tasks.filter(t=>t.status==='proceso').length}</b><span>En proceso</span></div>
+ <div class="kpi"><b>${tasks.filter(t=>t.status==='parada').length}</b><span>Paradas</span></div>
+ <div class="kpi"><b>${bl.length}</b><span>Pendientes de asignar</span></div>
+ <div class="kpi"><b>${tasks.filter(t=>t.status==='finalizada').length}</b><span>Finalizadas</span></div>
+ <div class="kpi"><b>${eur(tot)}</b><span>Coste acumulado</span></div></div>
+ <div class="tw"><table><tr><th>Persona</th><th>En proceso</th><th>Paradas</th><th>Finalizadas</th><th>Media días/tarea</th><th style="width:18%">Días dedicados</th><th>Coste</th></tr>
+ ${rows.map(r=>`<tr><td><b>${esc(r.p.name)}</b><div class="sub">${esc(r.p.role)}</div></td><td>${r.act}</td><td>${r.par}</td><td>${r.fin}</td><td>${r.med||'—'}</td>
+ <td><div class="bar" style="width:${r.d/max*100}%"></div><div class="sub">${r.d} días</div></td><td><b>${eur(r.c)}</b></td></tr>`).join('')}</table></div>
+ <h3 style="color:var(--steel-d)">Tareas pendientes</h3>
+ ${bl.map(t=>`<div class="row"><div class="grow"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><div class="sub">${esc(t.desc)||'Sin descripción'}</div></div><span class="chip s-pendiente">Sin asignar</span></div>`).join('')||'<div class="tip">No hay tareas pendientes.</div>'}`;
+}
+function idle(p){const e=tasks.filter(t=>t.owner===p.id&&t.end).map(t=>t.end).sort().pop();return Math.max(0,Math.round((new Date(f(today))-new Date(e||p.alta||f(today)))/864e5))}
+function stats(){
+ const fin=tasks.filter(t=>t.status==='finalizada');
+ const med=fin.length?Math.round(fin.reduce((a,t)=>a+days(t),0)/fin.length):0;
+ const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');
+ const rows=people.map(p=>{const ts=tasks.filter(t=>t.owner===p.id);const act=ts.filter(t=>t.status==='proceso'||t.status==='parada').sort((a,b)=>days(b)-days(a));const fn=ts.filter(t=>t.status==='finalizada');
+  return{p,act,v:act.length?days(act[0]):idle(p),fin:fn.length,med:fn.length?Math.round(fn.reduce((a,t)=>a+days(t),0)/fn.length):0}});
+ const max=Math.max(1,...rows.map(r=>r.v),...tasks.map(days));
+ const bar=(n,l)=>`<div class='bar b-${l}' style='width:${Math.max(3,n/max*100)}%'></div>`;
+ const d=n=>n===1?'1 día':n+' días';
+ const all=tasks.filter(t=>t.owner).slice().sort((a,b)=>days(b)-days(a));
+ return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>Tiempo de desarrollo y situación actual por persona</div></div></div>
+ <div class='kpis'>
+ <div class='kpi'><b>${med?d(med):'—'}</b><span>Tiempo medio por tarea finalizada</span></div>
+ <div class='kpi'><b>${tasks.filter(t=>t.status==='proceso').length}</b><span>En proceso</span></div>
+ <div class='kpi'><b>${tasks.filter(t=>t.status==='parada').length}</b><span>Paradas</span></div>
+ <div class='kpi'><b>${rows.filter(r=>!r.act.length).length}</b><span>Personas sin tarea</span></div>
+ <div class='kpi'><b>${bl.length}</b><span>Pendientes de asignar</span></div></div>
+ <div class='th'>Azul = normal · Ámbar desde <input type='number' min='1' value='${LIM.warn}' onchange='LIM.warn=+this.value||1;draw()'> días · Rojo desde <input type='number' min='1' value='${LIM.high}' onchange='LIM.high=+this.value||1;draw()'> días</div>
+ <div class='tw'><table><tr><th>Persona</th><th>Situación actual</th><th style='width:22%'>Tiempo</th><th>Finalizadas</th><th>Media días/tarea</th></tr>
+ ${rows.map(r=>{const l=lv(r.v);return `<tr><td><b>${esc(r.p.name)}</b><div class='sub'>${esc(r.p.role)}</div></td>
+ <td>${r.act.length?r.act.map(t=>`<div><span class='lnk' onclick='openTask(${t.id})'>${esc(t.title)}</span> <span class='sub'>· ${d(days(t))}${t.status==='parada'?' · parada':''}</span></div>`).join(''):`<b class='t-${l}'>Sin tarea</b> <span class='sub'>· desde hace ${d(r.v)}</span>`}</td>
+ <td>${bar(r.v,l)}<div class='sub t-${l}'>${d(r.v)}</div></td><td>${r.fin}</td><td>${r.med||'—'}</td></tr>`}).join('')}</table></div>
+ <h3 style='color:var(--steel-d)'>Tiempo por tarea</h3>
+ <div class='tw'><table><tr><th>Tarea</th><th>Persona</th><th>Estado</th><th style='width:28%'>Tiempo</th></tr>
+ ${all.map(t=>{const l=t.status==='finalizada'?'ok':lv(days(t));return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${t.urgent?'🔺 ':''}${esc(t.title)}</span></td><td>${esc(person(t.owner).name)}</td><td><span class='chip s-${t.status}'>${ST[t.status]}</span></td><td>${bar(days(t),l)}<div class='sub'>${d(days(t))}</div></td></tr>`}).join('')}</table></div>
+ <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
+ ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
+}
+function draw(){$('#main').innerHTML={diario,backlog,equipo,stats}[view]()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;draw()});
+
+function drop(e,pid){e.preventDefault();assign(+e.dataTransfer.getData('t'),pid)}
+function assign(id,pid){if(!pid)return;const t=tasks.find(x=>x.id===id);t.owner=+pid;t.status='proceso';t.start=f(today);t.notes.push({d:f(today),t:'Asignada desde el backlog'});commit()}
+function pick(pid){const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');if(bl[0])assign(bl[0].id,pid)}
+function addP(){const n=$('#pn').value.trim();if(!n)return;people.push({id:nid(),name:n,role:$('#pr').value.trim()||'—',alta:f(today)});commit()}
+function delP(id){people=people.filter(p=>p.id!==id);tasks.forEach(t=>{if(t.owner===id){t.owner=null;t.status='pendiente'}});commit()}
+
+function openTask(id,owner){
+ const t=id?tasks.find(x=>x.id===id):{title:'',desc:'',start:f(today),end:'',status:owner===null?'pendiente':'proceso',owner:owner??null,urgent:false,notes:[]};
+ const d=$('#dlg');
+ d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">${id?'Tarea':'Nueva tarea'}</h2>
+ <label>Título</label><input id="f-t" value="${esc(t.title)}">
+ <label>Descripción</label><textarea id="f-d" rows="2">${esc(t.desc)}</textarea>
+ <div class="two"><div><label>Persona</label><select id="f-o"><option value="">Backlog (sin asignar)</option>${people.map(p=>`<option value="${p.id}" ${p.id===t.owner?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>
+ <div><label>Estado</label><select id="f-s">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k===t.status?'selected':''}>${v}</option>`).join('')}</select></div>
+ <div><label>Fecha inicio</label><input type="date" id="f-i" value="${t.start}"></div>
+ <div><label>Fecha fin</label><input type="date" id="f-e" value="${t.end}"></div></div>
+ <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-u" style="width:auto" ${t.urgent?'checked':''}> Prioritaria / urgente</label>
+ ${id?`<label>Seguimiento</label><div class="notes">${t.notes.slice().reverse().map(n=>`<div><i>${fmt(n.d)}</i> · ${esc(n.t)}</div>`).join('')||'<div>Sin comentarios</div>'}</div>`:''}
+ <label>Añadir línea de seguimiento (${fmt(sel)})</label><input id="f-n" placeholder="Ej.: continúa por problema X">
+ <div class="acts">${id?`<button class="btn ghost" style="margin-right:auto" onclick="del(${id})">Eliminar</button>`:''}<button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="save(${id})">Guardar</button></div>`;
+ d.showModal();
+}
+function save(id){
+ const title=$('#f-t').value.trim();if(!title)return;
+ const o=$('#f-o').value;let st=$('#f-s').value,end=$('#f-e').value;
+ if(st==='finalizada'&&!end)end=f(today);
+ const base={title,desc:$('#f-d').value,owner:o?+o:null,status:o?st:'pendiente',start:$('#f-i').value,end,urgent:$('#f-u').checked};
+ let t;if(id){t=tasks.find(x=>x.id===id);Object.assign(t,base)}else{t={id:nid(),notes:[],...base};tasks.push(t)}
+ const n=$('#f-n').value.trim();if(n)t.notes.push({d:sel,t:n});
+ $('#dlg').close();commit();
+}
+function del(id){if(!confirm('¿Eliminar la tarea?'))return;tasks=tasks.filter(t=>t.id!==id);$('#dlg').close();commit()}
+function loadDemo(){const o=JSON.parse(DEMO);people=o.people;tasks=o.tasks;commit()}
+
+/* Persistencia: caché local + data.json en GitHub (API Contents) */
+let cfg={};try{cfg=JSON.parse(localStorage.getItem('dt_cfg')||'{}')}catch(e){}
+let sha=null,dirty=false,pushing=false,queued=false,timer=null;
+const hora=()=>new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+const apiUrl=()=>`https://api.github.com/repos/${cfg.repo}/contents/${cfg.path||'data.json'}`;
+const H=()=>({Authorization:'Bearer '+cfg.token,Accept:'application/vnd.github+json'});
+const linked=()=>cfg.repo&&cfg.token;
+function setSt(c,m){const e=$('#sync');if(e){e.className='sync '+c;e.textContent=m}}
+const snap=()=>JSON.stringify({version:1,updated:new Date().toISOString(),people,tasks},null,1);
+function cache(){try{localStorage.setItem('dt_cache',JSON.stringify({people,tasks}))}catch(e){}}
+function commit(){cache();draw();if(!linked())return;dirty=true;clearTimeout(timer);timer=setTimeout(push,800)}
+async function pull(){
+ if(!linked())return setSt('','Local · sin GitHub');
+ setSt('busy','Sincronizando…');
+ try{const r=await fetch(apiUrl()+'?t='+Date.now()+(cfg.branch?'&ref='+cfg.branch:''),{headers:H(),cache:'no-store'});
+  if(r.status===404){sha=null;dirty=true;return push()}
+  if(!r.ok)throw new Error(r.status);
+  const j=await r.json();sha=j.sha;
+  const o=JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
+  people=o.people||[];tasks=o.tasks||[];cache();setSt('ok','☁ Sincronizado '+hora());
+  if(!$('#dlg').open)draw()}catch(e){setSt('err','Error al leer ('+e.message+')')}}
+async function push(){
+ if(!linked())return;if(pushing){queued=true;return}
+ pushing=true;setSt('busy','Guardando…');
+ try{const b={message:'Daily Tracker '+new Date().toISOString(),content:btoa(unescape(encodeURIComponent(snap())))};
+  if(sha)b.sha=sha;if(cfg.branch)b.branch=cfg.branch;
+  const r=await fetch(apiUrl(),{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify(b)});
+  if(r.status===409||r.status===422){dirty=false;pushing=false;setSt('err','Conflicto con otro dispositivo: recargando, repite el cambio');return pull()}
+  if(!r.ok)throw new Error(r.status);
+  sha=(await r.json()).content.sha;dirty=false;setSt('ok','☁ Guardado '+hora())}
+ catch(e){setSt('err','No se pudo guardar ('+e.message+')')}
+ pushing=false;if(queued){queued=false;push()}}
+function openCfg(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Sincronizar con GitHub</h2>
+<div class="tip">Los datos se guardan como data.json en un repositorio privado tuyo. El token solo se guarda en este navegador.</div>
+<label>Repositorio de datos (usuario/repo)</label><input id="c-r" value="${esc(cfg.repo||'')}" placeholder="miusuario/daily-tracker-data">
+<label>Token fine-grained (permiso Contents: lectura y escritura)</label><input id="c-t" type="password" value="${esc(cfg.token||'')}">
+<div class="two"><div><label>Fichero</label><input id="c-p" value="${esc(cfg.path||'data.json')}"></div><div><label>Rama (opcional)</label><input id="c-b" value="${esc(cfg.branch||'')}"></div></div>
+<div class="acts"><button class="btn ghost" style="margin-right:auto" onclick="saveCfg(1)">Desconectar</button><button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="saveCfg()">Guardar y sincronizar</button></div>`;d.showModal()}
+function saveCfg(x){cfg=x?{}:{repo:$('#c-r').value.trim(),token:$('#c-t').value.trim(),path:$('#c-p').value.trim()||'data.json',branch:$('#c-b').value.trim()};localStorage.setItem('dt_cfg',JSON.stringify(cfg));sha=null;$('#dlg').close();draw();pull()}
+
+try{const c=JSON.parse(localStorage.getItem('dt_cache')||'null');if(c){people=c.people||[];tasks=c.tasks||[]}}catch(e){}
+draw();pull();
+setInterval(()=>{if(!dirty&&!pushing&&!$('#dlg').open)pull()},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!dirty&&!$('#dlg').open)pull()});
+addEventListener('online',()=>dirty?push():pull());
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

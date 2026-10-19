@@ -85,6 +85,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute
 td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border-bottom:0}
 .bar{height:8px;border-radius:4px;background:var(--steel)}
 .sync{margin-top:auto;font-size:12px;padding:8px 10px;border-radius:10px;cursor:pointer;background:var(--steel-l);color:var(--steel-d)}.sync.err{background:var(--urgb);color:var(--urg)}.sync.busy{color:var(--mute)}
+.s-libre{background:#fde3c8;color:#b45309}.task.libre{background:#fff3e3;border-color:#f3b676}.task.libre:hover{border-color:#e08a2e}
 @media(max-width:700px){.sync{display:none}}
 .b-ok{background:var(--steel)}.b-warn{background:#d69e2e}.b-hi{background:#c0392b}
 .t-ok{color:var(--steel-d)}.t-warn{color:#b7791f}.t-hi{color:#c0392b}
@@ -157,8 +158,8 @@ function week(){
 }
 function taskCard(t){
  const n=t.notes[t.notes.length-1];
- return `<div class="task" onclick="openTask(${t.id})">
- <div class="tt"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><span class="chip s-${t.status}">${ST[t.status]}</span></div>
+ return `<div class="task${t.libre?' libre':''}" onclick="openTask(${t.id})">
+ <div class="tt"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><span class="chip ${t.libre?'s-libre':'s-'+t.status}">${t.libre?(t.status==='finalizada'?'Periodo cerrado':'Desasignado'):ST[t.status]}</span></div>
  <div class="meta"><span>⏱ <span class="dur t-${t.status==='finalizada'?'ok':lv(days(t))}">${dur(t)}</span></span><span>Inicio ${fmt(t.start)}</span>${t.end?`<span>Fin ${fmt(t.end)}</span>`:''}</div>
  ${n?`<div class="last"><i>${fmt(n.d)}</i> · ${esc(n.t)}</div>`:''}</div>`;
 }
@@ -166,7 +167,7 @@ function diario(){
  const urg=tasks.filter(t=>t.urgent&&t.status!=='finalizada');
  const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');
  const lbl=new Date(sel).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});
- return `<div class="top"><div><h1>Daily · ${lbl}</h1><div class="sub">${sel===f(today)?'Hoy · ':''}${people.length} personas · ${tasks.filter(t=>t.status==='proceso').length} tareas en proceso</div></div>
+ return `<div class="top"><div><h1>Daily · ${lbl}</h1><div class="sub">${sel===f(today)?'Hoy · ':''}${people.length} personas · ${tasks.filter(t=>t.status==='proceso'&&!t.libre).length} tareas en proceso</div></div>
  <button class="btn" onclick="openTask(0)">+ Nueva tarea</button></div>
  <div class="week">${week()}</div>
  <div class="layout"><div>
@@ -174,8 +175,8 @@ function diario(){
  <div class="grid">${people.length?'':`<div class="free" style="grid-column:1/-1"><span>Aún no hay equipo. Añade personas en Equipo.</span><button class="btn sm" onclick="loadDemo()">Cargar ejemplo</button></div>`}${people.map(p=>{
   const ts=tasks.filter(t=>t.owner===p.id&&t.status!=='finalizada');
   return `<div class="person" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="drop(event,${p.id})">
-  <div class="ph"><div class="av">${esc(ini(p.name))}</div><div><div class="n">${esc(p.name)}</div><div class="r">${esc(p.role)}</div></div><button class="btn ghost sm" onclick="openTask(0,${p.id})">+ Tarea</button></div>
-  ${ts.length?ts.map(taskCard).join(''):`<div class="free"><span>Sin tarea asignada</span><button class="btn sm" onclick="pick(${p.id})">Del backlog</button></div>`}</div>`}).join('')}</div></div>
+  <div class="ph"><div class="av">${esc(ini(p.name))}</div><div><div class="n">${esc(p.name)}</div><div class="r">${esc(p.role)}</div></div><div style="margin-left:auto;display:flex;gap:6px">${ts.some(t=>t.libre)?'':`<button class="btn ghost sm" title="Registrar que se queda sin tarea" onclick="libre(${p.id})">Sin tarea</button>`}<button class="btn ghost sm" onclick="openTask(0,${p.id})">+ Tarea</button></div></div>
+  ${ts.length?ts.map(taskCard).join(''):`<div class="free"><span>Sin tarea asignada</span><span style="display:flex;gap:6px"><button class="btn ghost sm" onclick="libre(${p.id})">Registrar</button><button class="btn sm" onclick="pick(${p.id})">Del backlog</button></span></div>`}</div>`}).join('')}</div></div>
  <aside class="side"><h3>Backlog (${bl.length})</h3><div class="sub">Arrastra una tarea sobre una persona</div>
  ${bl.map(t=>`<div class="bl" draggable="true" ondragstart="event.dataTransfer.setData('t',${t.id})">${t.urgent?'🔺 ':''}${esc(t.title)}</div>`).join('')||'<div class="tip">Backlog vacío</div>'}
  </aside></div>`;
@@ -194,48 +195,37 @@ function equipo(){
  ${people.map(p=>`<div class="row"><div class="av">${esc(ini(p.name))}</div><div class="grow"><b>${esc(p.name)}</b><div class="sub">${esc(p.role)}</div></div><button class="btn ghost sm" onclick="delP(${p.id})">Quitar</button></div>`).join('')}
  <div class="tip">Datos guardados en un fichero JSON (en esta maqueta solo en memoria).</div>`;
 }
-function statsOld(){
- const rows=people.map(p=>{const ts=tasks.filter(t=>t.owner===p.id);const fin=ts.filter(t=>t.status==='finalizada');
-  return{p,act:ts.filter(t=>t.status==='proceso').length,par:ts.filter(t=>t.status==='parada').length,fin:fin.length,
-  d:ts.reduce((a,t)=>a+days(t),0),c:ts.reduce((a,t)=>a+cost(t),0),med:fin.length?Math.round(fin.reduce((a,t)=>a+days(t),0)/fin.length):0}});
- const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');
- const max=Math.max(1,...rows.map(r=>r.d));
- const tot=rows.reduce((a,r)=>a+r.c,0);
- return `<div class="top"><div><h1>Estadísticas por persona</h1><div class="sub">Coste = días en la tarea × coste/día de la persona (configurable en Equipo)</div></div></div>
- <div class="kpis"><div class="kpi"><b>${tasks.filter(t=>t.status==='proceso').length}</b><span>En proceso</span></div>
- <div class="kpi"><b>${tasks.filter(t=>t.status==='parada').length}</b><span>Paradas</span></div>
- <div class="kpi"><b>${bl.length}</b><span>Pendientes de asignar</span></div>
- <div class="kpi"><b>${tasks.filter(t=>t.status==='finalizada').length}</b><span>Finalizadas</span></div>
- <div class="kpi"><b>${eur(tot)}</b><span>Coste acumulado</span></div></div>
- <div class="tw"><table><tr><th>Persona</th><th>En proceso</th><th>Paradas</th><th>Finalizadas</th><th>Media días/tarea</th><th style="width:18%">Días dedicados</th><th>Coste</th></tr>
- ${rows.map(r=>`<tr><td><b>${esc(r.p.name)}</b><div class="sub">${esc(r.p.role)}</div></td><td>${r.act}</td><td>${r.par}</td><td>${r.fin}</td><td>${r.med||'—'}</td>
- <td><div class="bar" style="width:${r.d/max*100}%"></div><div class="sub">${r.d} días</div></td><td><b>${eur(r.c)}</b></td></tr>`).join('')}</table></div>
- <h3 style="color:var(--steel-d)">Tareas pendientes</h3>
- ${bl.map(t=>`<div class="row"><div class="grow"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><div class="sub">${esc(t.desc)||'Sin descripción'}</div></div><span class="chip s-pendiente">Sin asignar</span></div>`).join('')||'<div class="tip">No hay tareas pendientes.</div>'}`;
-}
-function idle(p){const e=tasks.filter(t=>t.owner===p.id&&t.end).map(t=>t.end).sort().pop();return Math.max(0,Math.round((new Date(f(today))-new Date(e||p.alta||f(today)))/864e5))}
+function idle(p){const e=tasks.filter(t=>t.owner===p.id&&t.end&&!t.libre).map(t=>t.end).sort().pop();return Math.max(0,Math.round((new Date(f(today))-new Date(e||p.alta||f(today)))/864e5))}
 function stats(){
- const fin=tasks.filter(t=>t.status==='finalizada');
- const med=fin.length?Math.round(fin.reduce((a,t)=>a+days(t),0)/fin.length):0;
- const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');
- const rows=people.map(p=>{const ts=tasks.filter(t=>t.owner===p.id);const act=ts.filter(t=>t.status==='proceso'||t.status==='parada').sort((a,b)=>days(b)-days(a));const fn=ts.filter(t=>t.status==='finalizada');
-  return{p,act,v:act.length?days(act[0]):idle(p),fin:fn.length,med:fn.length?Math.round(fn.reduce((a,t)=>a+days(t),0)/fn.length):0}});
+ const real=tasks.filter(t=>!t.libre),lib=tasks.filter(t=>t.libre);
+ const fin=real.filter(t=>t.status==='finalizada');
+ const avg=a=>a.length?Math.round(a.reduce((x,t)=>x+days(t),0)/a.length):0;
+ const bl=real.filter(t=>!t.owner&&t.status==='pendiente');
+ const d=n=>n===1?'1 día':n+' días';
+ const rows=people.map(p=>{
+  const ts=real.filter(t=>t.owner===p.id),ls=lib.filter(t=>t.owner===p.id);
+  const act=ts.filter(t=>t.status==='proceso'||t.status==='parada').sort((a,b)=>days(b)-days(a));
+  const la=ls.find(t=>t.status!=='finalizada'),fn=ts.filter(t=>t.status==='finalizada');
+  return{p,act,la,free:!!la||!act.length,v:la?days(la):act.length?days(act[0]):idle(p),fin:fn.length,med:avg(fn),lt:ls.reduce((x,t)=>x+days(t),0),ln:ls.length}});
  const max=Math.max(1,...rows.map(r=>r.v),...tasks.map(days));
  const bar=(n,l)=>`<div class='bar b-${l}' style='width:${Math.max(3,n/max*100)}%'></div>`;
- const d=n=>n===1?'1 día':n+' días';
- const all=tasks.filter(t=>t.owner).slice().sort((a,b)=>days(b)-days(a));
- return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>Tiempo de desarrollo y situación actual por persona</div></div></div>
+ const all=real.filter(t=>t.owner).slice().sort((a,b)=>days(b)-days(a));
+ const lc=lib.filter(t=>t.status==='finalizada');
+ return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>Tiempo de desarrollo y tiempo sin tarea por persona</div></div></div>
  <div class='kpis'>
- <div class='kpi'><b>${med?d(med):'—'}</b><span>Tiempo medio por tarea finalizada</span></div>
- <div class='kpi'><b>${tasks.filter(t=>t.status==='proceso').length}</b><span>En proceso</span></div>
- <div class='kpi'><b>${tasks.filter(t=>t.status==='parada').length}</b><span>Paradas</span></div>
- <div class='kpi'><b>${rows.filter(r=>!r.act.length).length}</b><span>Personas sin tarea</span></div>
+ <div class='kpi'><b>${avg(fin)?d(avg(fin)):'—'}</b><span>Tiempo medio por tarea finalizada</span></div>
+ <div class='kpi'><b>${real.filter(t=>t.status==='proceso').length}</b><span>En proceso</span></div>
+ <div class='kpi'><b>${real.filter(t=>t.status==='parada').length}</b><span>Paradas</span></div>
+ <div class='kpi'><b>${rows.filter(r=>r.free).length}</b><span>Personas sin tarea</span></div>
+ <div class='kpi'><b>${lc.length?d(avg(lc)):'—'}</b><span>Tiempo medio hasta asignar tarea</span></div>
  <div class='kpi'><b>${bl.length}</b><span>Pendientes de asignar</span></div></div>
  <div class='th'>Azul = normal · Ámbar desde <input type='number' min='1' value='${LIM.warn}' onchange='LIM.warn=+this.value||1;draw()'> días · Rojo desde <input type='number' min='1' value='${LIM.high}' onchange='LIM.high=+this.value||1;draw()'> días</div>
- <div class='tw'><table><tr><th>Persona</th><th>Situación actual</th><th style='width:22%'>Tiempo</th><th>Finalizadas</th><th>Media días/tarea</th></tr>
+ <div class='tw'><table><tr><th>Persona</th><th>Situación actual</th><th style='width:20%'>Tiempo</th><th>Finalizadas</th><th>Media días/tarea</th><th>Total sin tarea</th></tr>
  ${rows.map(r=>{const l=lv(r.v);return `<tr><td><b>${esc(r.p.name)}</b><div class='sub'>${esc(r.p.role)}</div></td>
- <td>${r.act.length?r.act.map(t=>`<div><span class='lnk' onclick='openTask(${t.id})'>${esc(t.title)}</span> <span class='sub'>· ${d(days(t))}${t.status==='parada'?' · parada':''}</span></div>`).join(''):`<b class='t-${l}'>Sin tarea</b> <span class='sub'>· desde hace ${d(r.v)}</span>`}</td>
- <td>${bar(r.v,l)}<div class='sub t-${l}'>${d(r.v)}</div></td><td>${r.fin}</td><td>${r.med||'—'}</td></tr>`}).join('')}</table></div>
+ <td>${r.act.map(t=>`<div><span class='lnk' onclick='openTask(${t.id})'>${esc(t.title)}</span> <span class='sub'>· ${d(days(t))}${t.status==='parada'?' · parada':''}</span></div>`).join('')}${r.la?`<div><span class='chip s-libre'>Desasignado</span> <span class='lnk' onclick='openTask(${r.la.id})'>desde ${fmt(r.la.start)}</span> <span class='sub'>· ${d(days(r.la))}</span></div>`:r.act.length?'':`<b class='t-${l}'>Sin tarea</b> <span class='sub'>· desde hace ${d(r.v)} (sin registrar)</span>`}</td>
+ <td>${bar(r.v,l)}<div class='sub t-${l}'>${d(r.v)}</div></td><td>${r.fin}</td><td>${r.med||'—'}</td><td>${r.ln?d(r.lt)+` <span class='sub'>· ${r.ln} ${r.ln===1?'periodo':'periodos'}</span>`:'—'}</td></tr>`}).join('')}</table></div>
+ ${lib.length?`<h3 style='color:var(--steel-d)'>Periodos sin tarea</h3><div class='tw'><table><tr><th>Persona</th><th>Desde</th><th>Hasta</th><th style='width:30%'>Tiempo</th></tr>
+ ${lib.slice().sort((a,b)=>b.start.localeCompare(a.start)).map(t=>`<tr><td><span class='lnk' onclick='openTask(${t.id})'>${esc(person(t.owner)?.name||'—')}</span></td><td>${fmt(t.start)}</td><td>${t.end?fmt(t.end):`<span class='chip s-libre'>En curso</span>`}</td><td>${bar(days(t),t.status==='finalizada'?'ok':lv(days(t)))}<div class='sub'>${d(days(t))}</div></td></tr>`).join('')}</table></div>`:''}
  <h3 style='color:var(--steel-d)'>Tiempo por tarea</h3>
  <div class='tw'><table><tr><th>Tarea</th><th>Persona</th><th>Estado</th><th style='width:28%'>Tiempo</th></tr>
  ${all.map(t=>{const l=t.status==='finalizada'?'ok':lv(days(t));return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${t.urgent?'🔺 ':''}${esc(t.title)}</span></td><td>${esc(person(t.owner).name)}</td><td><span class='chip s-${t.status}'>${ST[t.status]}</span></td><td>${bar(days(t),l)}<div class='sub'>${d(days(t))}</div></td></tr>`}).join('')}</table></div>
@@ -246,10 +236,10 @@ function draw(){$('#main').innerHTML={diario,backlog,equipo,stats}[view]()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;draw()});
 
 function drop(e,pid){e.preventDefault();assign(+e.dataTransfer.getData('t'),pid)}
-function assign(id,pid){if(!pid)return;const t=tasks.find(x=>x.id===id);t.owner=+pid;t.status='proceso';t.start=f(today);t.notes.push({d:f(today),t:'Asignada desde el backlog'});commit()}
+function assign(id,pid){if(!pid)return;const t=tasks.find(x=>x.id===id);closeLibre(+pid,f(today));t.owner=+pid;t.status='proceso';t.start=f(today);t.notes.push({d:f(today),t:'Asignada desde el backlog'});commit()}
 function pick(pid){const bl=tasks.filter(t=>!t.owner&&t.status==='pendiente');if(bl[0])assign(bl[0].id,pid)}
 function addP(){const n=$('#pn').value.trim();if(!n)return;people.push({id:nid(),name:n,role:$('#pr').value.trim()||'—',alta:f(today)});commit()}
-function delP(id){people=people.filter(p=>p.id!==id);tasks.forEach(t=>{if(t.owner===id){t.owner=null;t.status='pendiente'}});commit()}
+function delP(id){people=people.filter(p=>p.id!==id);tasks=tasks.filter(t=>!(t.libre&&t.owner===id));tasks.forEach(t=>{if(t.owner===id){t.owner=null;t.status='pendiente'}});commit()}
 
 function openTask(id,owner){
  const t=id?tasks.find(x=>x.id===id):{title:'',desc:'',start:f(today),end:'',status:owner===null?'pendiente':'proceso',owner:owner??null,urgent:false,notes:[]};
@@ -276,10 +266,12 @@ function save(id){
  const o=$('#f-o').value;let st=$('#f-s').value,end=$('#f-e').value;
  if(st==='finalizada'&&!end)end=f(today);
  const base={title,desc:$('#f-d').value,owner:o?+o:null,status:o?st:'pendiente',start:$('#f-i').value,end,urgent:$('#f-u').checked};
- let t;if(id){t=tasks.find(x=>x.id===id);Object.assign(t,base)}else{t={id:nid(),notes:[],...base};tasks.push(t)}
+ let t;if(id){t=tasks.find(x=>x.id===id);Object.assign(t,base)}else{t={id:nid(),notes:[],...base};tasks.push(t);if(t.owner)closeLibre(t.owner,t.start||f(today))}
  t.notes=nd.filter(n=>n.t.trim()).map(n=>({d:n.d||sel,t:n.t.trim()})).sort((a,b)=>a.d.localeCompare(b.d));
  $('#dlg').close();commit();
 }
+function closeLibre(pid,date){tasks.filter(t=>t.libre&&t.owner===pid&&t.status!=='finalizada').forEach(t=>{t.status='finalizada';t.end=date;t.notes.push({d:date,t:'Se le asigna tarea'})})}
+function libre(pid){if(tasks.some(t=>t.libre&&t.owner===pid&&t.status!=='finalizada'))return;tasks.push({id:nid(),title:'Sin tarea asignada',desc:'',start:sel,end:'',status:'proceso',owner:pid,urgent:false,libre:true,notes:[]});commit()}
 function del(id){if(!confirm('¿Eliminar la tarea?'))return;tasks=tasks.filter(t=>t.id!==id);$('#dlg').close();commit()}
 function loadDemo(){const o=JSON.parse(DEMO);people=o.people;tasks=o.tasks;commit()}
 

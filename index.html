@@ -90,6 +90,13 @@ td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border
 .s-vacaciones{background:#d9f2ee;color:#17796b}.task.vacaciones{background:#ecf9f6;border-color:#86cfc3}.task.vacaciones:hover{border-color:#3fa797}
 .ro button[onclick*="openTask("],.ro [onclick*="libre("],.ro [onclick*="pick("],.ro select[onchange*="assign"],.ro .form,.ro button[onclick*="delP"],.ro button[onclick*="editP"],.ro [onclick*="loadDemo"]{display:none!important}.ro .bl{cursor:default}
 .chk{display:flex;flex-wrap:wrap;gap:6px 14px;border:1px solid var(--line);border-radius:9px;padding:8px;max-height:112px;overflow:auto}.chk label{display:flex;gap:5px;align-items:center;margin:0;font-size:14px;color:var(--ink)}.chk input{width:auto}
+.pi{width:1.05em;height:1.05em;fill:#e8543a;vertical-align:-2px;margin-right:3px}.urg h3 .pi{fill:var(--urg)}
+.ms-f{display:flex;align-items:center;gap:6px;min-height:40px;padding:5px 10px;background:var(--steel-d);color:#fff;border-radius:9px;cursor:pointer}
+.ms-cs{display:flex;flex-wrap:wrap;gap:5px;flex:1}.ms-ar{margin-left:auto;opacity:.85}.ms-ph{opacity:.75;font-size:14px}
+.ms-chip{background:rgba(255,255,255,.2);border-radius:6px;padding:2px 8px;display:inline-flex;gap:7px;align-items:center;font-size:13px;font-weight:600}.ms-chip b{cursor:pointer;opacity:.9}.ms-chip b:hover{opacity:1}
+.ms-p{border:1px solid var(--line);border-radius:10px;margin-top:5px;background:var(--card);box-shadow:0 8px 22px rgba(30,50,80,.16);overflow:hidden}
+.ms-p input{border:0;border-bottom:1px solid var(--line);border-radius:0}#ms-l{max-height:190px;overflow:auto}
+.ms-o{padding:9px 12px;cursor:pointer}.ms-o:hover{background:var(--steel-l)}.ms-o.on{background:var(--steel-l);color:var(--steel-d);font-weight:600}
 .s-libre{background:#fde3c8;color:#b45309}.task.libre{background:#fff3e3;border-color:#f3b676}.task.libre:hover{border-color:#e08a2e}
 @media(max-width:700px){.sync{display:none}}
 .b-ok{background:var(--steel)}.b-warn{background:#d69e2e}.b-hi{background:#c0392b}
@@ -110,7 +117,7 @@ main{padding:14px 12px 90px}
 <nav>
  <div class="logo">Daily<span>Tracker</span></div>
  <button data-v="diario" class="on">📋 Diario</button>
- <button data-v="prio">🔺 Prioritarias</button>
+ <button data-v="prio"><svg class="pi" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> Prioritarias</button>
  <button data-v="backlog">🗂️ Backlog</button>
  <button data-v="stats">📊 Estadísticas</button>
  <button data-v="equipo">⚙️ Equipo</button>
@@ -151,6 +158,9 @@ const dur=t=>{const n=days(t);return n?(n===1?'1 día':n+' días'):'—'};
 const fmt=s=>s?new Date(s).toLocaleDateString('es-ES',{day:'2-digit',month:'short',timeZone:'UTC'}):'—';
 let LIM={warn:5,high:10};
 const has=(t,id)=>(t.owners||[]).includes(id);
+const PI='<svg class="pi" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
+function jor(a,b){if(!a||!b)return 0;const e=new Date(b);let d=new Date(a),n=0;for(;d<=e;d.setUTCDate(d.getUTCDate()+1)){const w=d.getUTCDay();if(w&&w<6)n++}return n}
+const jtxt=(a,b)=>{const n=jor(a,b);return n?n+(n===1?' jornada':' jornadas'):''};
 const names=t=>(t.owners||[]).map(o=>(person(o)||{}).name).filter(Boolean).join(', ');
 const isT=t=>!t.tipo||t.tipo==='tarea';
 const nid=()=>Date.now()*10+Math.floor(Math.random()*10);
@@ -168,8 +178,8 @@ function week(){
 function taskCard(t,pid){
  const n=t.notes[t.notes.length-1];
  return `<div class="task${isT(t)?'':' '+t.tipo}" onclick="openTask(${t.id})">
- <div class="tt"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><span class="chip ${isT(t)?'s-'+t.status:'s-'+t.tipo}">${isT(t)?ST[t.status]:t.tipo==='baja'?(t.status==='finalizada'?'Alta':'De baja'):t.tipo==='vacaciones'?(t.status==='finalizada'?'Vacaciones terminadas':'De vacaciones'):(t.status==='finalizada'?'Periodo cerrado':'Desasignado')}</span></div>
- <div class="meta"><span>⏱ <span class="dur t-${t.status==='finalizada'?'ok':lv(days(t))}">${dur(t)}</span></span><span>Inicio ${fmt(t.start)}</span>${t.est&&isT(t)&&t.status!=='finalizada'?`<span class="${t.est<f(today)?'t-hi':''}">Est. ${fmt(t.est)}${t.est<f(today)?' · retrasada':''}</span>`:''}${t.end?`<span>Fin ${fmt(t.end)}</span>`:''}</div>
+ <div class="tt"><b>${t.urgent?PI:''}${esc(t.title)}</b><span class="chip ${isT(t)?'s-'+t.status:'s-'+t.tipo}">${isT(t)?ST[t.status]:t.tipo==='baja'?(t.status==='finalizada'?'Alta':'De baja'):t.tipo==='vacaciones'?(t.status==='finalizada'?'Vacaciones terminadas':'De vacaciones'):(t.status==='finalizada'?'Periodo cerrado':'Desasignado')}</span></div>
+ <div class="meta"><span>⏱ <span class="dur t-${t.status==='finalizada'?'ok':lv(days(t))}">${dur(t)}</span></span><span>Inicio ${fmt(t.start)}</span>${t.est&&isT(t)&&t.status!=='finalizada'?`<span class="${t.est<f(today)?'t-hi':''}">Est. ${fmt(t.est)}${jtxt(t.start,t.est)?' · '+jtxt(t.start,t.est):''}${t.est<f(today)?' · retrasada':''}</span>`:''}${t.end?`<span>Fin ${fmt(t.end)}</span>`:''}</div>
  ${t.owners.length>1?`<div class="sub" style="margin-top:4px">👥 Con ${esc(t.owners.filter(o=>o!==pid).map(o=>(person(o)||{}).name||'?').join(', '))}</div>`:''}${n?`<div class="last"><i>${fmt(n.d)}</i> · ${esc(n.t)}</div>`:''}</div>`;
 }
 function diario(){
@@ -180,20 +190,20 @@ function diario(){
  <button class="btn" onclick="openTask(0)">+ Nueva tarjeta</button></div>
  <div class="week">${week()}</div>
  <div class="layout"><div>
- ${urg.length?`<div class="urg"><h3>🔺 Prioritarias</h3>${urg.map(t=>`<div onclick="openTask(${t.id})"><span><b>${esc(t.title)}</b> · ${t.owners.length?esc(names(t)):'Sin asignar'}</span><span>${dur(t)}</span></div>`).join('')}</div>`:''}
+ ${urg.length?`<div class="urg"><h3>${PI}Prioritarias</h3>${urg.map(t=>`<div onclick="openTask(${t.id})"><span><b>${esc(t.title)}</b> · ${t.owners.length?esc(names(t)):'Sin asignar'}</span><span>${dur(t)}</span></div>`).join('')}</div>`:''}
  <div class="grid">${people.length?'':`<div class="free" style="grid-column:1/-1"><span>Aún no hay equipo. Añade personas en Equipo.</span><button class="btn sm" onclick="loadDemo()">Cargar ejemplo</button></div>`}${people.map(p=>{
   const ts=tasks.filter(t=>has(t,p.id)&&t.status!=='finalizada');
   return `<div class="person" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="drop(event,${p.id})">
   <div class="ph"><div class="av">${esc(ini(p.name))}</div><div><div class="n">${esc(p.name)}</div><div class="r">${esc(p.role)}</div></div><button class="btn ghost sm" onclick="openTask(0,${p.id})">+ Añadir</button></div>
   ${ts.length?ts.map(t=>taskCard(t,p.id)).join(''):`<div class="free"><span>Sin tarea asignada</span><span style="display:flex;gap:6px"><button class="btn ghost sm" onclick="libre(${p.id})">Registrar</button><button class="btn sm" onclick="pick(${p.id})">Del backlog</button></span></div>`}</div>`}).join('')}</div></div>
  <aside class="side"><h3>Backlog (${bl.length})</h3><div class="sub">Arrastra una tarea sobre una persona</div>
- ${bl.map(t=>`<div class="bl" draggable="true" ondragstart="event.dataTransfer.setData('t',${t.id})">${t.urgent?'🔺 ':''}${esc(t.title)}</div>`).join('')||'<div class="tip">Backlog vacío</div>'}
+ ${bl.map(t=>`<div class="bl" draggable="true" ondragstart="event.dataTransfer.setData('t',${t.id})">${t.urgent?PI:''}${esc(t.title)}</div>`).join('')||'<div class="tip">Backlog vacío</div>'}
  </aside></div>`;
 }
 function backlog(){
  const bl=tasks.filter(t=>!t.owners.length&&t.status==='pendiente');
  return `<div class="top"><div><h1>Backlog</h1><div class="sub">Tareas pendientes de asignar</div></div><button class="btn" onclick="openTask(0,null)">+ Añadir al backlog</button></div>
- ${bl.map(t=>`<div class="row"><div class="grow"><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><div class="sub">${esc(t.desc)||'Sin descripción'}</div></div>
+ ${bl.map(t=>`<div class="row"><div class="grow"><b>${t.urgent?PI:''}${esc(t.title)}</b><div class="sub">${esc(t.desc)||'Sin descripción'}</div></div>
  <select style="width:150px" onchange="assign(${t.id},this.value)"><option value="">Asignar a…</option>${people.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select>
  <button class="btn ghost sm" onclick="openTask(${t.id})">Editar</button></div>`).join('')||'<div class="tip">No hay tareas en el backlog.</div>'}`;
 }
@@ -240,12 +250,12 @@ function stats(){
  ${sp.slice().sort((a,b)=>b.start.localeCompare(a.start)).map(t=>`<tr><td><span class='lnk' onclick='openTask(${t.id})'>${esc(names(t)||'—')}</span></td><td><span class='chip s-${t.tipo}'>${{baja:'Baja',vacaciones:'Vacaciones'}[t.tipo]||'Sin tarea'}</span></td><td>${fmt(t.start)}</td><td>${t.end?fmt(t.end):`<span class='chip s-${t.tipo}'>En curso</span>`}</td><td>${bar(days(t),t.tipo!=='libre'||t.status==='finalizada'?'ok':lv(days(t)))}<div class='sub'>${d(days(t))}</div></td></tr>`).join('')}</table></div>`:''}
  <h3 style='color:var(--steel-d)'>Tiempo por tarea</h3>
  <div class='tw'><table><tr><th>Tarea</th><th>Persona</th><th>Estado</th><th style='width:28%'>Tiempo</th></tr>
- ${all.map(t=>{const l=t.status==='finalizada'?'ok':lv(days(t));return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${t.urgent?'🔺 ':''}${esc(t.title)}</span></td><td>${esc(names(t))}</td><td><span class='chip s-${t.status}'>${ST[t.status]}</span></td><td>${bar(days(t),l)}<div class='sub'>${d(days(t))}</div></td></tr>`}).join('')}</table></div>
+ ${all.map(t=>{const l=t.status==='finalizada'?'ok':lv(days(t));return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${t.urgent?PI:''}${esc(t.title)}</span></td><td>${esc(names(t))}</td><td><span class='chip s-${t.status}'>${ST[t.status]}</span></td><td>${bar(days(t),l)}<div class='sub'>${d(days(t))}</div></td></tr>`}).join('')}</table></div>
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
- ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?'🔺 ':''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
+ ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.8.0',BUILD='19 oct 2026';
-const LOGS=[['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.9.0',BUILD='19 oct 2026';
+const LOGS=[['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
@@ -268,10 +278,10 @@ function prio(){
  const d=n=>n===1?'1 día':n+' días';
  const late=t=>t.est&&t.est<f(today)?Math.round((new Date(f(today))-new Date(t.est))/864e5):0;
  const cel=n=>`<span class='t-${lv(n)}'><b>${d(n)}</b></span>`;
- return `<div class='top'><div><h1>🔺 Tareas prioritarias</h1><div class='sub'>Marcadas como prioritarias, en el backlog o ya asignadas</div></div></div>
+ return `<div class='top'><div><h1>${PI}Tareas prioritarias</h1><div class='sub'>Marcadas como prioritarias, en el backlog o ya asignadas</div></div></div>
  <div class='kpis'><div class='kpi'><b>${L.length}</b><span>Prioritarias abiertas</span></div><div class='kpi'><b>${L.filter(t=>!t.owners.length).length}</b><span>Sin asignar</span></div><div class='kpi'><b>${L.filter(t=>t.owners.length&&t.status==='proceso').length}</b><span>En proceso</span></div><div class='kpi'><b>${L.filter(t=>late(t)).length}</b><span>Pasadas de fecha estimada</span></div></div>
  <div class='tw'><table><tr><th>Tarea</th><th>Estado</th><th>Asignada a</th><th>Desde creación</th><th>Asignada · en proceso</th><th>Fin estimado</th></tr>
- ${L.map(t=>{const a=t.owners.length;return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${esc(t.title)}</span></td><td><span class='chip ${a?'s-'+t.status:'s-pendiente'}'>${a?ST[t.status]:'Sin asignar'}</span></td><td>${a?esc(names(t)):"<span class='sub'>— (en backlog)</span>"}</td><td>${cel(since(t))}<div class='sub'>desde ${fmt(t.created)}</div></td><td>${a&&t.start?cel(days(t))+`<div class='sub'>desde ${fmt(t.start)}</div>`:'—'}</td><td>${t.est?fmt(t.est)+(late(t)?` <span class='t-hi'>· retrasada ${d(late(t))}</span>`:''):"<span class='sub'>sin fecha</span>"}</td></tr>`}).join('')||`<tr><td colspan='6' class='sub'>No hay tareas prioritarias abiertas.</td></tr>`}</table></div>`;
+ ${L.map(t=>{const a=t.owners.length;return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${esc(t.title)}</span></td><td><span class='chip ${a?'s-'+t.status:'s-pendiente'}'>${a?ST[t.status]:'Sin asignar'}</span></td><td>${a?esc(names(t)):"<span class='sub'>— (en backlog)</span>"}</td><td>${cel(since(t))}<div class='sub'>desde ${fmt(t.created)}</div></td><td>${a&&t.start?cel(days(t))+`<div class='sub'>desde ${fmt(t.start)}</div>`:'—'}</td><td>${t.est?fmt(t.est)+(jtxt(t.start,t.est)?` <span class='sub'>· ${jtxt(t.start,t.est)}</span>`:'')+(late(t)?` <span class='t-hi'>· retrasada ${d(late(t))}</span>`:''):"<span class='sub'>sin fecha</span>"}</td></tr>`}).join('')||`<tr><td colspan='6' class='sub'>No hay tareas prioritarias abiertas.</td></tr>`}</table></div>`;
 }
 function editP(id){const p=person(id),d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Editar persona</h2><label>Nombre</label><input id="e-n" value="${esc(p.name)}"><label>Rol</label><input id="e-r" value="${esc(p.role)}"><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="saveP(${id})">Guardar</button></div>`;d.showModal()}
 function saveP(id){const p=person(id),n=$('#e-n').value.trim();if(!n)return;p.name=n;p.role=$('#e-r').value.trim()||'—';$('#dlg').close();commit()}
@@ -288,28 +298,36 @@ function openTask(id,owner){
  <label>Tipo de tarjeta</label><select id="f-k" onchange="tipoChg()">${[['tarea','Tarea'],['libre','Sin tarea (desasignado)'],['baja','De baja'],['vacaciones','Vacaciones']].map(([k,v])=>`<option value="${k}" ${k===(t.tipo||'tarea')?'selected':''}>${v}</option>`).join('')}</select>
  <label>Título</label><input id="f-t" value="${esc(t.title)}">
  <div id="f-dw"><label>Descripción</label><textarea id="f-d" rows="2">${esc(t.desc)}</textarea></div>
- <div class="two"><div style="grid-column:1/-1"><label>Personas asignadas (sin marcar = backlog)</label><div id="f-o" class="chk">${people.map(p=>`<label><input type="checkbox" value="${p.id}" ${has(t,p.id)?'checked':''}> ${esc(p.name)}</label>`).join('')||'<span class="sub">Añade personas en Equipo</span>'}</div></div>
+ <div class="two"><div style="grid-column:1/-1"><label>Personas asignadas (sin marcar = backlog)</label><div class="ms" id="f-o"><div class="ms-f" onclick="msTog()"><span id="ms-c" class="ms-cs"></span><span class="ms-ar">▾</span></div><div class="ms-p" id="ms-p" hidden><input id="ms-q" placeholder="Buscar persona…" oninput="msDraw()"><div id="ms-l"></div></div></div></div>
  <div><label>Estado</label><select id="f-s">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k===t.status?'selected':''}>${v}</option>`).join('')}</select></div>
- <div><label>Fecha inicio</label><input type="date" id="f-i" value="${t.start}"></div>
+ <div><label>Fecha inicio</label><input type="date" id="f-i" value="${t.start}" onchange="jorChg()"></div>
  <div><label>Fecha fin</label><input type="date" id="f-e" value="${t.end}"></div>
- <div id="f-xw"><label>Fin estimado</label><input type="date" id="f-x" value="${t.est||''}"></div>
+ <div id="f-xw"><label>Fin estimado</label><input type="date" id="f-x" value="${t.est||''}" onchange="jorChg()"><div class="sub" id="f-j"></div></div>
  <div id="f-cw"><label>Creada</label><input type="date" id="f-c" value="${t.created||f(today)}"></div></div>
  <label id="f-uw" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-u" style="width:auto" ${t.urgent?'checked':''}> Prioritaria / urgente</label>
  <label>Seguimiento diario</label>
  <div class="tw" style="margin:0;max-height:230px;overflow:auto"><table style="min-width:0"><thead><tr><th>Fecha</th><th>Comentario</th><th></th></tr></thead><tbody id="nt"></tbody></table></div>
  <button class="btn ghost sm" style="margin-top:8px" onclick="ntAdd()">+ Añadir línea</button>
  <div class="acts">${id?`<button class="btn ghost" style="margin-right:auto" onclick="del(${id})">Eliminar</button>`:''}<button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="save(${id})">Guardar</button></div>`;
- nd=t.notes.map(n=>({...n}));if(!ro())nd.push({d:sel,t:''});ntDraw();d.showModal();tipoChg(1);if(ro())roModal(d);
+ nd=t.notes.map(n=>({...n}));if(!ro())nd.push({d:sel,t:''});ntDraw();ms=t.owners.slice();msDraw();d.showModal();tipoChg(1);jorChg();if(ro())roModal(d);
 }
 let nd=[];
 function ntDraw(){$('#nt').innerHTML=nd.map((n,i)=>`<tr><td style="width:140px;padding:4px"><input type="date" value="${esc(n.d)}" onchange="nd[${i}].d=this.value"></td><td style="padding:4px"><input value="${esc(n.t)}" placeholder="Ej.: continúa por problema X" oninput="nd[${i}].t=this.value"></td><td style="width:40px;padding:4px"><button class="btn ghost sm" title="Quitar línea" onclick="nd.splice(${i},1);ntDraw()">✕</button></td></tr>`).join('')}
-function roModal(d){d.querySelectorAll('input,select,textarea').forEach(e=>e.disabled=true);
+function roModal(d){d.querySelectorAll('input,select,textarea').forEach(e=>e.disabled=true);const m=$('#f-o');if(m){m.style.pointerEvents='none';m.style.opacity='.75'}
  d.querySelectorAll('.acts .btn,button[onclick="ntAdd()"],#nt button').forEach(b=>{const o=b.getAttribute('onclick')||'';if(/save\(|del\(|ntAdd|nd\.splice/.test(o))b.style.display='none';else if(b.textContent==='Cancelar')b.textContent='Cerrar'});
  const h=d.querySelector('h2');if(h)h.textContent+=' (solo lectura)'}
+let ms=[];
+function msTog(){const p=$('#ms-p');p.hidden=!p.hidden;if(!p.hidden){$('#ms-q').value='';msDraw();$('#ms-q').focus()}}
+function msPick(id){ms=ms.includes(id)?ms.filter(x=>x!==id):[...ms,id];msDraw()}
+function msDraw(){const q=($('#ms-q').value||'').toLowerCase();
+ $('#ms-c').innerHTML=ms.length?ms.map(id=>`<span class="ms-chip">${esc((person(id)||{}).name||'?')}<b onclick="event.stopPropagation();msPick(${id})">✕</b></span>`).join(''):'<span class="ms-ph">Sin asignar (backlog)</span>';
+ $('#ms-l').innerHTML=people.filter(p=>p.name.toLowerCase().includes(q)).map(p=>`<div class="ms-o${ms.includes(p.id)?' on':''}" onclick="msPick(${p.id})">${esc(p.name)} <span class="sub">· ${esc(p.role)}</span>${ms.includes(p.id)?'<span style="float:right">✓</span>':''}</div>`).join('')||'<div class="ms-o sub">Sin resultados</div>'}
+document.addEventListener('click',e=>{const p=$('#ms-p');if(p&&!e.composedPath().some(n=>n.id==='f-o'))p.hidden=true});
+function jorChg(){const n=jor($('#f-i').value,$('#f-x').value);$('#f-j').textContent=n?'Tiempo estimado: '+n+(n===1?' jornada':' jornadas'):''}
 function ntAdd(){nd.push({d:sel,t:''});ntDraw();const x=document.querySelectorAll('#nt input[placeholder]');x[x.length-1].focus()}
 function save(id){
  const title=$('#f-t').value.trim();if(!title)return;
- const os=[...document.querySelectorAll('#f-o input:checked')].map(x=>+x.value),k=$('#f-k').value;if(k!=='tarea'&&os.length!==1){alert('Esta tarjeta debe tener exactamente una persona.');return}let st=$('#f-s').value,end=$('#f-e').value;
+ const os=ms.slice(),k=$('#f-k').value;if(k!=='tarea'&&os.length!==1){alert('Esta tarjeta debe tener exactamente una persona.');return}let st=$('#f-s').value,end=$('#f-e').value;
  if(st==='finalizada'&&!end)end=f(today);
  const base={title,desc:$('#f-d').value,owners:os,status:os.length?st:'pendiente',start:$('#f-i').value,end,urgent:k==='tarea'&&$('#f-u').checked,tipo:k,est:k==='tarea'?$('#f-x').value:'',created:$('#f-c').value||f(today)};
  let t,prev=[];if(id){t=tasks.find(x=>x.id===id);prev=t.owners.slice();Object.assign(t,base)}else{t={id:nid(),notes:[],...base};tasks.push(t)}

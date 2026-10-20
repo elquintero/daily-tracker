@@ -91,9 +91,9 @@ td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border
 .ro button[onclick*="openTask("],.ro [onclick*="libre("],.ro [onclick*="pick("],.ro select[onchange*="assign"],.ro .form,.ro button[onclick*="delP"],.ro button[onclick*="editP"],.ro [onclick*="loadDemo"]{display:none!important}.ro .bl{cursor:default}
 .chk{display:flex;flex-wrap:wrap;gap:6px 14px;border:1px solid var(--line);border-radius:9px;padding:8px;max-height:112px;overflow:auto}.chk label{display:flex;gap:5px;align-items:center;margin:0;font-size:14px;color:var(--ink)}.chk input{width:auto}
 .pi{width:1.05em;height:1.05em;fill:#e8543a;vertical-align:-2px;margin-right:3px}.urg h3 .pi{fill:var(--urg)}
-.ms-f{display:flex;align-items:center;gap:6px;min-height:40px;padding:5px 10px;background:var(--steel-d);color:#fff;border-radius:9px;cursor:pointer}
-.ms-cs{display:flex;flex-wrap:wrap;gap:5px;flex:1}.ms-ar{margin-left:auto;opacity:.85}.ms-ph{opacity:.75;font-size:14px}
-.ms-chip{background:rgba(255,255,255,.2);border-radius:6px;padding:2px 8px;display:inline-flex;gap:7px;align-items:center;font-size:13px;font-weight:600}.ms-chip b{cursor:pointer;opacity:.9}.ms-chip b:hover{opacity:1}
+.ms-f{display:flex;align-items:center;gap:6px;min-height:38px;padding:4px 8px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:9px;cursor:pointer}.ms-f:hover{border-color:var(--steel)}
+.ms-cs{display:flex;flex-wrap:wrap;gap:5px;flex:1}.ms-ar{margin-left:auto;color:var(--mute)}.ms-ph{color:var(--mute);padding-left:2px}
+.ms-chip{background:var(--steel-l);color:var(--steel-d);border-radius:6px;padding:2px 8px;display:inline-flex;gap:7px;align-items:center;font-size:13px;font-weight:600}.ms-chip b{cursor:pointer;color:var(--mute)}.ms-chip b:hover{color:var(--urg)}
 .ms-p{border:1px solid var(--line);border-radius:10px;margin-top:5px;background:var(--card);box-shadow:0 8px 22px rgba(30,50,80,.16);overflow:hidden}
 .ms-p input{border:0;border-bottom:1px solid var(--line);border-radius:0}#ms-l{max-height:190px;overflow:auto}
 .ms-o{padding:9px 12px;cursor:pointer}.ms-o:hover{background:var(--steel-l)}.ms-o.on{background:var(--steel-l);color:var(--steel-d);font-weight:600}
@@ -254,8 +254,8 @@ function stats(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.9.0',BUILD='19 oct 2026';
-const LOGS=[['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.9.1',BUILD='19 oct 2026';
+const LOGS=[['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');

@@ -87,6 +87,8 @@ td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border
 .sync{margin-top:auto;font-size:12px;padding:8px 10px;border-radius:10px;cursor:pointer;background:var(--steel-l);color:var(--steel-d)}.sync.err{background:var(--urgb);color:var(--urg)}.sync.busy{color:var(--mute)}
 .s-baja{background:#e3e8fb;color:#4c5bb5}.task.baja{background:#eef1fb;border-color:#aab6e6}.task.baja:hover{border-color:#6f7fd0}
 .foot{margin-top:28px;padding-top:10px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--mute);cursor:pointer}.foot:hover{color:var(--steel-d)}
+.upd{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--steel);border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px rgba(30,50,80,.18);font-size:14px}.upd[hidden]{display:none}
+@media(max-width:700px){.upd{left:12px;right:12px;bottom:calc(74px + env(safe-area-inset-bottom,0px))}}
 .s-vacaciones{background:#d9f2ee;color:#17796b}.task.vacaciones{background:#ecf9f6;border-color:#86cfc3}.task.vacaciones:hover{border-color:#3fa797}
 .ro button[onclick*="openTask("],.ro [onclick*="libre("],.ro [onclick*="pick("],.ro select[onchange*="assign"],.ro .form,.ro button[onclick*="delP"],.ro button[onclick*="editP"],.ro button[onclick*="setAdm"],.ro button[onclick*="resetPw"],.ro [onclick*="loadDemo"]{display:none!important}.ro .bl{cursor:default}
 .ur [onclick*="pick("],.ur select[onchange*="assign"],.ur .form,.ur button[onclick*="delP"],.ur button[onclick*="editP"],.ur button[onclick*="setAdm"],.ur button[onclick*="resetPw"],.ur [onclick*="loadDemo"],.ur button[onclick*="openTask(0,null)"]{display:none!important}.ur .bl{cursor:default}
@@ -128,6 +130,7 @@ main{padding:14px 12px 90px}
 </div>
 
 <dialog id="dlg"></dialog>
+<div id="upd" class="upd" hidden><span>🔄 Hay cambios nuevos</span><button class="btn sm" onclick="applyPending()">Actualizar</button><button class="btn ghost sm" onclick="dismissUpd()">Ahora no</button></div>
 
 <script>
 const $=s=>document.querySelector(s);
@@ -256,8 +259,8 @@ function stats(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.11.0',BUILD='19 oct 2026';
-const LOGS=[['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.12.0',BUILD='19 oct 2026';
+const LOGS=[['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
@@ -293,7 +296,7 @@ function delP(id){const p=person(id),rel=tasks.filter(t=>has(t,id)),act=rel.filt
  people=people.filter(x=>x.id!==id);tasks=tasks.filter(t=>!(!isT(t)&&has(t,id)));
  tasks.forEach(t=>{if(has(t,id)){t.owners=t.owners.filter(x=>x!==id);if(!t.owners.length&&t.status!=='finalizada'){t.status='pendiente';t.start='';t.end=''}}});commit()}
 
-function openTask(id,owner){if(isUser()&&!id&&!me()){openMe();return}
+function openTask(id,owner){if(pend)applyPending();if(id&&!tasks.find(x=>x.id===id)){alert('Esa tarea ya no existe.');return}if(isUser()&&!id&&!me()){openMe();return}
  const t=id?tasks.find(x=>x.id===id):{title:'',desc:'',start:f(today),end:'',status:owner===null?'pendiente':'proceso',owners:isUser()?(me()?[me().id]:[]):owner?[owner]:[],created:f(today),est:'',urgent:false,notes:[]};
  const d=$('#dlg');
  d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">${id?'Tarjeta':'Nueva tarjeta'}</h2>
@@ -388,7 +391,7 @@ function loadDemo(){const o=JSON.parse(DEMO);people=o.people;tasks=o.tasks;norm(
 /* Persistencia: caché local + data.json en GitHub (API Contents) */
 let cfg={};try{cfg=JSON.parse(localStorage.getItem('dt_cfg')||'{}')}catch(e){}
 const ro=()=>cfg.role==='guest';
-let auth=null;
+let auth=null,pend=null,dis=null;
 const me=()=>people.find(p=>p.id===cfg.me);
 const isAdmin=()=>!linked()||people.length===0||!!(me()&&me().admin);
 const isUser=()=>!!linked()&&!ro()&&!isAdmin();
@@ -411,8 +414,19 @@ async function pull(){
   if(!r.ok)throw new Error(r.status);
   const j=await r.json();sha=j.sha;
   const o=JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
-  people=o.people||[];tasks=o.tasks||[];auth=o.auth||null;norm();cache();setSt('ok','☁ Sincronizado '+hora());
+  people=o.people||[];tasks=o.tasks||[];auth=o.auth||null;norm();cache();pend=null;dis=null;showUpd(false);setSt('ok','☁ Sincronizado '+hora());
   if(!$('#dlg').open){draw();if(!ro()&&people.length&&!me())openMe()}}catch(e){setSt('err','Error al leer ('+e.message+')')}}
+async function check(){
+ if(!linked()||dirty||pushing)return;
+ try{const r=await fetch(apiUrl()+'?t='+Date.now()+(cfg.branch?'&ref='+cfg.branch:''),{headers:H(),cache:'no-store'});
+  if(!r.ok)return;const j=await r.json();
+  if(j.sha===sha){pend=null;showUpd(false);return}
+  if(j.sha===dis)return;
+  pend=j;showUpd(true)}catch(e){}}
+function showUpd(v){const e=$('#upd');if(e)e.hidden=!v}
+function applyPending(){if(!pend)return;const o=JSON.parse(decodeURIComponent(escape(atob(pend.content.replace(/\n/g,'')))));
+ sha=pend.sha;people=o.people||[];tasks=o.tasks||[];auth=o.auth||null;norm();cache();pend=null;dis=null;showUpd(false);setSt('ok','☁ Actualizado '+hora());draw()}
+function dismissUpd(){if(pend)dis=pend.sha;pend=null;showUpd(false)}
 async function push(){
  if(!linked()||ro())return;if(pushing){queued=true;return}
  pushing=true;setSt('busy','Guardando…');
@@ -435,9 +449,9 @@ function saveCfg(x){cfg=x?{}:{repo:$('#c-r').value.trim(),token:$('#c-t').value.
 
 try{const c=JSON.parse(localStorage.getItem('dt_cache')||'null');if(c){people=c.people||[];tasks=c.tasks||[];auth=c.auth||null;norm()}}catch(e){}
 draw();pull();
-setInterval(()=>{if(!dirty&&!pushing&&!$('#dlg').open)pull()},60000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!dirty&&!$('#dlg').open)pull()});
-addEventListener('online',()=>dirty?push():pull());
+setInterval(()=>{if(!dirty&&!pushing&&!$('#dlg').open)check()},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!dirty&&!$('#dlg').open)check()});
+addEventListener('online',()=>dirty?push():check());
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>

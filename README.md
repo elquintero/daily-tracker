@@ -9,3 +9,7 @@ Todos los dispositivos usan el mismo token de lectura y escritura. Los permisos 
 - **Contraseña personal**: al elegir un usuario la app pide su contraseña; la primera vez la crea la propia persona (mínimo 4 caracteres). Se guarda como hash dentro de `data.json`. Si alguien la olvida, un administrador usa *Restablecer clave* en *Equipo* y la persona crea otra la próxima vez. Un usuario ya identificado en un dispositivo no la vuelve a escribir hasta que cambie de usuario.
 - **Primer administrador**: en el selector, elige tu usuario y pulsa *Administrador…*. Si aún no hay contraseña, la app te pide crearla. No está escrita en el código: se guarda como hash (PBKDF2 con sal) dentro de `data.json`, en el repositorio privado. Cámbiala en *Equipo → Contraseña admin*.
 - Todos los dispositivos deben tener la misma versión: las versiones antiguas borrarían la contraseña y los administradores al guardar.
+
+## Avisos de cambios
+
+Si alguien cambia datos, aparece un aviso discreto («Hay cambios nuevos») con *Actualizar* y *Ahora no*. Al abrir una ficha para editar, la app carga antes los cambios pendientes.

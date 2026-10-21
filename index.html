@@ -256,8 +256,8 @@ function stats(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.10.0',BUILD='19 oct 2026';
-const LOGS=[['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.10.1',BUILD='19 oct 2026';
+const LOGS=[['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
@@ -311,16 +311,17 @@ function openTask(id,owner){if(isUser()&&!id&&!me()){openMe();return}
  <div class="tw" style="margin:0;max-height:230px;overflow:auto"><table style="min-width:0"><thead><tr><th>Fecha</th><th>Comentario</th><th></th></tr></thead><tbody id="nt"></tbody></table></div>
  <button class="btn ghost sm" style="margin-top:8px" onclick="ntAdd()">+ Añadir línea</button>
  <div class="acts">${id?`<button class="btn ghost" style="margin-right:auto" onclick="del(${id})">Eliminar</button>`:''}<button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="save(${id})">Guardar</button></div>`;
- nd=t.notes.map(n=>({...n}));if(!ro())nd.push({d:isUser()?f(today):sel,t:''});ntDraw();ms=t.owners.slice();msDraw();d.showModal();tipoChg(1);jorChg();if(ro())roModal(d);else if(isUser())limModal(d,!id);
+ nd=t.notes.map(n=>({...n}));if(!ro())nd.push({d:isUser()?f(today):sel,t:''});ntDraw();ms=t.owners.slice();msDraw();d.showModal();tipoChg(1);jorChg();if(ro())roModal(d);else if(isUser())limModal(d,!id,!!id&&!!me()&&has(t,me().id));
 }
 let nd=[];
 function ntDraw(){const ed=n=>!isUser()||n.d===f(today)||n.d===off(1),mm=isUser()?` min="${f(today)}" max="${off(1)}"`:'';
  $('#nt').innerHTML=nd.map((n,i)=>{const x=ed(n)?'':' disabled';return `<tr><td style="width:140px;padding:4px"><input type="date" value="${esc(n.d)}"${mm}${x} onchange="nd[${i}].d=this.value"></td><td style="padding:4px"><input value="${esc(n.t)}" placeholder="Ej.: continúa por problema X"${x} oninput="nd[${i}].t=this.value"></td><td style="width:40px;padding:4px">${x?'':`<button class="btn ghost sm" title="Quitar línea" onclick="nd.splice(${i},1);ntDraw()">✕</button>`}</td></tr>`}).join('')}
-function limModal(d,isNew){const m=$('#f-o');if(m){m.style.pointerEvents='none';m.style.opacity='.75'}
+function limModal(d,isNew,own){const m=$('#f-o');if(m){m.style.pointerEvents='none';m.style.opacity='.75'}
  if(isNew)['f-i','f-c','f-s','f-e'].forEach(i=>{const e=$('#'+i);if(e)e.disabled=true});
  else{d.querySelectorAll('input,select,textarea').forEach(e=>{if(!e.closest('#nt'))e.disabled=true});
   d.querySelectorAll('.acts .btn').forEach(b=>{if(/del\(/.test(b.getAttribute('onclick')||''))b.style.display='none'});
-  const h=d.querySelector('h2');if(h)h.textContent+=' · solo seguimiento de hoy y mañana'}}
+  if(own){const e=$('#f-s');e.disabled=false;[...e.options].forEach(o=>{if(o.value==='pendiente'&&e.value!=='pendiente')o.remove()})}
+  const h=d.querySelector('h2');if(h)h.textContent+=own?' · estado y seguimiento de hoy y mañana':' · solo seguimiento de hoy y mañana'}}
 const b64=u=>btoa(String.fromCharCode(...u)),unb=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
 async function hp(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);return b64(new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt,iterations:100000},k,256)))}
 let admP=null;
@@ -351,7 +352,8 @@ function msDraw(){const q=($('#ms-q').value||'').toLowerCase();
 document.addEventListener('click',e=>{const p=$('#ms-p');if(p&&!e.composedPath().some(n=>n.id==='f-o'))p.hidden=true});
 function jorChg(){const n=jor($('#f-i').value,$('#f-x').value);$('#f-j').textContent=n?'Tiempo estimado: '+n+(n===1?' jornada':' jornadas'):''}
 function ntAdd(){nd.push({d:isUser()?f(today):sel,t:''});ntDraw();const x=document.querySelectorAll('#nt input[placeholder]');x[x.length-1].focus()}
-function save(id){if(isUser()&&id){const t=tasks.find(x=>x.id===id),ok=n=>n.d===f(today)||n.d===off(1);t.notes=t.notes.filter(n=>!ok(n)).concat(nd.filter(n=>n.t.trim()&&ok(n)).map(n=>({d:n.d,t:n.t.trim()}))).sort((a,b)=>a.d.localeCompare(b.d));$('#dlg').close();commit();return}
+function save(id){if(isUser()&&id){const t=tasks.find(x=>x.id===id),ok=n=>n.d===f(today)||n.d===off(1);
+  if(me()&&has(t,me().id)){const st=$('#f-s').value;if(st!==t.status&&ST[st]&&st!=='pendiente'){t.status=st;if(st==='finalizada'){if(!t.end)t.end=f(today)}else t.end=''}}t.notes=t.notes.filter(n=>!ok(n)).concat(nd.filter(n=>n.t.trim()&&ok(n)).map(n=>({d:n.d,t:n.t.trim()}))).sort((a,b)=>a.d.localeCompare(b.d));$('#dlg').close();commit();return}
  const title=$('#f-t').value.trim();if(!title)return;
  const os=ms.slice(),k=$('#f-k').value;if(k!=='tarea'&&os.length!==1){alert('Esta tarjeta debe tener exactamente una persona.');return}let st=$('#f-s').value,end=$('#f-e').value;
  if(st==='finalizada'&&!end)end=f(today);

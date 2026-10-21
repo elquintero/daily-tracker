@@ -38,4 +38,4 @@ En *Equipo → Configurar* existe un selector *Rol* (administrador o invitado de
 
 ## Actualizar la app
 
-Sube los ficheros nuevos al repositorio de la app. El service worker usa la red primero, así que con conexión se carga siempre la versión más reciente; la copia en caché solo sirve sin conexión. Cambia `V='dt-vNN'` en `sw.js` en cada versión para limpiar cachés antiguas. El pie de página muestra la versión instalada.
+Sube los ficheros nuevos al repositorio de la app. El service worker usa la red primero, así que con conexión se carga siempre la versión más reciente; la copia en caché solo sirve sin conexión. Cambia `V='dt-vNN'` en `sw.js` en cada versión para limpiar cachés antiguas. El pie de página muestra la versión instalada a todos; el registro de novedades, que se abre al pulsarlo, solo lo ve un administrador.

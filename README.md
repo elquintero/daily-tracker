@@ -28,9 +28,9 @@ Todos los dispositivos usan el mismo token de lectura y escritura. Los permisos 
 
 - Al guardar token y ruta, la app pregunta **quién eres** (una persona del equipo). Cámbialo en *Equipo → Cambiar*.
 - **Contraseña personal**: al elegir un usuario la app pide su contraseña; la primera vez la crea la propia persona (mínimo 4 caracteres). Se guarda como hash dentro de `data.json`. Si alguien la olvida, un administrador usa *Restablecer clave* en *Equipo* y la persona crea otra la próxima vez. Un usuario ya identificado en un dispositivo no la vuelve a escribir hasta que cambie de usuario.
-- **Administrador**: puede crear, editar y asignar todo, gestionar el equipo y dar o quitar el rol a otros (*Hacer admin / Quitar admin*).
+- **Administrador**: puede crear, editar y asignar todo, gestionar el equipo. Solo el **administrador principal** da o quita el rol de administrador a otras personas (*Hacer admin / Quitar admin*), y la persona debe haber iniciado sesión al menos una vez.
 - **Usuario**: puede crear tareas para sí mismo con fecha de inicio de hoy (fija). En sus propias tareas puede **finalizarlas, pausarlas o reabrirlas** y añadir o editar líneas de seguimiento de hoy y de mañana. Las tareas de otras personas las ve en solo lectura, sin botón Guardar.
-- **Primer administrador**: en el selector, elige tu usuario y pulsa *Administrador…*. Si aún no hay contraseña de administrador, la app te pide crearla. No está escrita en el código: se guarda como hash (PBKDF2 con sal) dentro de `data.json`, en el repositorio privado. Cámbiala en *Equipo → Contraseña admin*.
+- **Primer administrador**: en el selector, elige tu usuario y pulsa *Administrador…*. Si aún no hay contraseña de administrador, la app te pide crearla. Quien la crea pasa a ser el **administrador principal**; a partir de entonces el botón *Administrador…* deja de mostrarse y solo el principal puede crear más administradores. No está escrita en el código: se guarda como hash (PBKDF2 con sal) dentro de `data.json`, en el repositorio privado. Cámbiala en *Equipo → Contraseña admin*.
 - Todos los dispositivos deben tener la misma versión: las versiones antiguas borrarían la contraseña y los administradores al guardar.
 
 ## Rol de la sesión (opcional)

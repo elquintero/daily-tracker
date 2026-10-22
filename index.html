@@ -87,6 +87,9 @@ td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border
 .sync{margin-top:auto;font-size:12px;padding:8px 10px;border-radius:10px;cursor:pointer;background:var(--steel-l);color:var(--steel-d)}.sync.err{background:var(--urgb);color:var(--urg)}.sync.busy{color:var(--mute)}
 .s-baja{background:#e3e8fb;color:#4c5bb5}.task.baja{background:#eef1fb;border-color:#aab6e6}.task.baja:hover{border-color:#6f7fd0}
 .foot{margin-top:28px;padding-top:10px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--mute)}.foot.lg{cursor:pointer}.foot.lg:hover{color:var(--steel-d)}
+.dot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#b9c4d0;border:2px solid var(--card)}.dot.on{background:#2fb36b}
+.dl{max-width:760px;margin:0 auto;text-align:center;padding-top:6px}.dl-name{font-size:clamp(30px,7vw,76px);font-weight:700;color:var(--steel-d);margin:26px 0 8px;line-height:1.1}.dl-n{font-size:clamp(18px,3vw,26px);color:var(--mute);margin-bottom:22px}.dl-t{text-align:left;max-width:560px;margin:22px auto 0}.dl-set{max-width:640px}
+.btn.big{font-size:20px;padding:12px 34px}.btn:disabled{opacity:.5;cursor:default}
 .upd{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--steel);border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px rgba(30,50,80,.18);font-size:14px}.upd[hidden]{display:none}
 @media(max-width:700px){.upd{left:12px;right:12px;bottom:calc(74px + env(safe-area-inset-bottom,0px))}}
 .s-vacaciones{background:#d9f2ee;color:#17796b}.task.vacaciones{background:#ecf9f6;border-color:#86cfc3}.task.vacaciones:hover{border-color:#3fa797}
@@ -110,7 +113,7 @@ td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border
 @media(max-width:700px){
 .app{grid-template-columns:1fr}
 nav{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;flex-direction:row;justify-content:space-around;border-right:0;border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
-nav button{flex-direction:column;gap:2px;font-size:11px;padding:6px 10px;align-items:center}.logo{display:none}
+nav button{flex-direction:column;gap:2px;font-size:11px;padding:6px 6px;align-items:center}.logo{display:none}
 main{padding:14px 12px 90px}
 }
 </style>
@@ -120,6 +123,7 @@ main{padding:14px 12px 90px}
 <nav>
  <div class="logo">Daily<span>Tracker</span></div>
  <button data-v="diario" class="on">📋 Diario</button>
+ <button data-v="daily">🎲 Daily</button>
  <button data-v="prio"><svg class="pi" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> Prioritarias</button>
  <button data-v="backlog">🗂️ Backlog</button>
  <button data-v="stats">📊 Estadísticas</button>
@@ -212,11 +216,11 @@ function backlog(){
  <button class="btn ghost sm" onclick="openTask(${t.id})">Editar</button></div>`).join('')||'<div class="tip">No hay tareas en el backlog.</div>'}`;
 }
 function equipo(){
- return `<div class="top"><div><h1>Configuración · Equipo</h1><div class="sub">Alta de personas del proyecto</div></div></div>
+ return `<div class="top"><div><h1>Configuración · Equipo</h1><div class="sub">Alta de personas del proyecto${linked()?' · '+people.filter(online).length+' en línea':''}</div></div></div>
  <div class="row"><div class="grow"><b>Sincronización con GitHub</b><div class="sub">${repo()?(me()&&me().admin?esc(repo())+' · administrador':ro()?'Conectado · invitado (solo lectura)':'Conectado'):'No configurada · los datos solo están en este navegador'}</div></div><button class="btn ghost sm" onclick="openCfg()">Configurar</button></div>
  ${linked()&&!ro()?`<div class="row"><div class="grow"><b>Tu usuario</b><div class="sub">${me()?esc(me().name)+' · '+(me().admin?'Administrador':'Usuario'):'Sin elegir'}</div></div><button class="btn ghost sm" onclick="openMe()">Cambiar</button>${me()&&!me().admin?`<button class="btn sm" onclick="openAdmin()">Soy administrador…</button>`:''}${isAdmin()?`<button class="btn ghost sm" onclick="openPw()">Contraseña admin</button>`:''}</div>`:''}
  <div class="form"><input id="pn" placeholder="Nombre"><input id="pr" placeholder="Rol (Backend, QA…)"><button class="btn" onclick="addP()">Añadir</button></div>
- ${people.map(p=>`<div class="row"><div class="av">${esc(ini(p.name))}</div><div class="grow"><b>${esc(p.name)}</b><div class="sub">${esc(p.role)} · ${tasks.filter(t=>has(t,p.id)&&isT(t)&&t.status!=='finalizada').length} tareas activas${p.admin?' · <b>Administrador</b>':''}${linked()&&isAdmin()&&!p.pw?' · sin contraseña':''}</div></div>${linked()&&isAdmin()?`<button class="btn ghost sm" onclick="setAdm(${p.id})">${p.admin?'Quitar admin':'Hacer admin'}</button>`:''}${linked()&&isAdmin()&&p.pw?`<button class="btn ghost sm" onclick="resetPw(${p.id})">Restablecer clave</button>`:''}<button class="btn ghost sm" onclick="editP(${p.id})">Editar</button><button class="btn ghost sm" onclick="delP(${p.id})">Quitar</button></div>`).join('')}
+ ${people.map(p=>`<div class="row"><div class="av" style="position:relative">${esc(ini(p.name))}<span class="dot${online(p)?' on':''}" title="${online(p)?'Conectado ahora':'No conectado'}"></span></div><div class="grow"><b>${esc(p.name)}</b>${online(p)?' <span class="sub" style="color:#2e8b6a">● en línea</span>':''}<div class="sub">${esc(p.role)} · ${tasks.filter(t=>has(t,p.id)&&isT(t)&&t.status!=='finalizada').length} tareas activas${p.admin?' · <b>Administrador</b>':''}${linked()&&isAdmin()&&!p.pw?' · sin contraseña':''}${!online(p)&&pres[p.id]?' · visto '+ago(pres[p.id]):''}</div></div>${linked()&&isAdmin()?`<button class="btn ghost sm" onclick="setAdm(${p.id})">${p.admin?'Quitar admin':'Hacer admin'}</button>`:''}${linked()&&isAdmin()&&p.pw?`<button class="btn ghost sm" onclick="resetPw(${p.id})">Restablecer clave</button>`:''}<button class="btn ghost sm" onclick="editP(${p.id})">Editar</button><button class="btn ghost sm" onclick="delP(${p.id})">Quitar</button></div>`).join('')}
  <div class="tip">Datos guardados en un fichero JSON (en esta maqueta solo en memoria).</div>`;
 }
 function idle(p){const e=tasks.filter(t=>has(t,p.id)&&t.end&&isT(t)).map(t=>t.end).sort().pop();return Math.max(0,Math.round((new Date(f(today))-new Date(e||p.alta||f(today)))/864e5))}
@@ -259,8 +263,8 @@ function stats(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.14.0',BUILD='19 oct 2026';
-const LOGS=[['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.15.0',BUILD='19 oct 2026';
+const LOGS=[['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){if(!canLog())return;const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
@@ -270,8 +274,8 @@ function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
  fs.innerHTML=(sp?[['proceso','En curso'],['finalizada',k==='baja'?'Alta (finalizada)':k==='vacaciones'?'Vuelta (finalizada)':'Cerrado (finalizada)']]:Object.entries(ST)).map(([a,b])=>`<option value="${a}">${b}</option>`).join('');
  fs.value=[...fs.options].some(o=>o.value===sv)?sv:'proceso'}
 function norm(){tasks.forEach(t=>{if(!t.tipo)t.tipo=t.libre?'libre':'tarea';delete t.libre;if(!t.owners)t.owners=t.owner!=null?[t.owner]:[];delete t.owner;if(!t.created)t.created=t.start||(t.notes&&t.notes[0]&&t.notes[0].d)||f(today);if(t.est===undefined)t.est=''})}
-function draw(){document.body.classList.toggle('ro',ro());document.body.classList.toggle('ur',isUser());$('#main').innerHTML={diario,prio,backlog,equipo,stats}[view]()+`<footer class="foot${canLog()?' lg':''}"${canLog()?' onclick="openLog()"':''}>Daily Tracker · v${VER} beta · ${BUILD}${ro()?' · 👁 modo invitado':''}${linked()&&!ro()&&me()?' · 👤 '+esc(me().name)+(me().admin?' (admin)':''):''}${canLog()?' · ver novedades':''}</footer>`}
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;draw()});
+function draw(){document.body.classList.toggle('ro',ro());document.body.classList.toggle('ur',isUser());$('#main').innerHTML={diario,daily,prio,backlog,equipo,stats}[view]()+`<footer class="foot${canLog()?' lg':''}"${canLog()?' onclick="openLog()"':''}>Daily Tracker · v${VER} beta · ${BUILD}${ro()?' · 👁 modo invitado':''}${linked()&&!ro()&&me()?' · 👤 '+esc(me().name)+(me().admin?' (admin)':''):''}${canLog()?' · ver novedades':''}</footer>`}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;draw();if(view==='equipo')loadPres()});
 
 function drop(e,pid){e.preventDefault();if(ro()||isUser())return;assign(+e.dataTransfer.getData('t'),pid)}
 function assign(id,pid){if(!pid)return;const t=tasks.find(x=>x.id===id);closeLibre(+pid,f(today));if(!has(t,+pid))t.owners.push(+pid);if(t.status==='pendiente'||!t.start){t.status='proceso';t.start=f(today)}t.notes.push({d:f(today),t:'Asignada a '+person(+pid).name});commit()}
@@ -343,7 +347,7 @@ async function loginOk(){const p=person(pwT),pw=$('#l-p').value;
   if(p.admin&&auth&&await hp($('#l-a').value,unb(auth.s))!==auth.h){alert('Contraseña de administrador incorrecta.');return}
   const sl=crypto.getRandomValues(new Uint8Array(16));p.pw={s:b64(sl),h:await hp(pw,sl)}}
  $('#dlg').close();cfg.me=p.id;localStorage.setItem('dt_cfg',JSON.stringify(cfg));
- if(pwAdm&&!p.admin){admP=p.id;commit();openAdmin()}else commit()}
+ if(pwAdm&&!p.admin){admP=p.id;commit();openAdmin()}else commit();setTimeout(beat,800)}
 function resetPw(id){const p=person(id);if(!confirm('¿Restablecer la contraseña de '+p.name+'? La próxima vez que se elija ese usuario tendrá que crear una nueva.'))return;delete p.pw;commit()}
 function setMe(id){cfg.me=id;localStorage.setItem('dt_cfg',JSON.stringify(cfg));draw()}
 function openAdmin(){const p=person(admP||(me()||{}).id);if(!p){alert('Elige primero quién eres.');return}admP=p.id;const d=$('#dlg');
@@ -352,7 +356,7 @@ async function admOk(){const pw=$('#a-p').value;if(!pw)return;
  if(!window.crypto||!crypto.subtle){alert('Este navegador solo comprueba contraseñas en una página segura (HTTPS).');return}
  if(!auth){if(pw!==$('#a-p2').value){alert('Las contraseñas no coinciden.');return}const s=crypto.getRandomValues(new Uint8Array(16));auth={s:b64(s),h:await hp(pw,s)}}
  else if(await hp(pw,unb(auth.s))!==auth.h){alert('Contraseña incorrecta.');return}
- cfg.me=admP;localStorage.setItem('dt_cfg',JSON.stringify(cfg));person(admP).admin=true;$('#dlg').close();commit()}
+ cfg.me=admP;localStorage.setItem('dt_cfg',JSON.stringify(cfg));person(admP).admin=true;$('#dlg').close();commit();setTimeout(beat,800)}
 function openPw(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Contraseña de administrador</h2><label>Nueva contraseña</label><input id="a-p" type="password"><label>Repite la contraseña</label><input id="a-p2" type="password"><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="pwOk()">Guardar</button></div>`;d.showModal()}
 async function pwOk(){const pw=$('#a-p').value;if(!pw||pw!==$('#a-p2').value){alert('Las contraseñas no coinciden.');return}
  if(!window.crypto||!crypto.subtle){alert('Este navegador solo comprueba contraseñas en una página segura (HTTPS).');return}
@@ -455,6 +459,51 @@ draw();loadAppCfg().then(()=>{draw();pull()});
 setInterval(()=>{if(!dirty&&!pushing&&!$('#dlg').open)check()},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!dirty&&!$('#dlg').open)check()});
 addEventListener('online',()=>dirty?push():check());
+let pres={};
+const online=p=>!!(pres[p.id]&&Date.now()-pres[p.id]<7*60000);
+const ago=t=>{const m=Math.round((Date.now()-t)/60000);return m<60?'hace '+Math.max(m,1)+' min':m<1440?'hace '+Math.round(m/60)+' h':'hace '+Math.round(m/1440)+' d'};
+const presUrl=()=>`https://api.github.com/repos/${repo()}/contents/presence.json`;
+async function presGet(){const r=await fetch(presUrl()+'?t='+Date.now()+(cfg.branch?'&ref='+cfg.branch:''),{headers:H(),cache:'no-store'});
+ if(r.status===404)return{sha:null,d:{}};if(!r.ok)throw new Error(r.status);
+ const j=await r.json();return{sha:j.sha,d:JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))))}}
+async function loadPres(){if(!linked())return;try{pres=(await presGet()).d;if(view==='equipo'&&!$('#dlg').open)draw()}catch(e){}}
+async function beat(){if(!linked()||ro()||!me()||document.hidden||navigator.onLine===false)return;
+ for(let k=0;k<3;k++){try{const x=await presGet(),now=Date.now();Object.keys(x.d).forEach(i=>{if(now-x.d[i]>2*864e5)delete x.d[i]});x.d[me().id]=now;
+  const b={message:'presencia',content:btoa(unescape(encodeURIComponent(JSON.stringify(x.d))))};if(x.sha)b.sha=x.sha;if(cfg.branch)b.branch=cfg.branch;
+  const r=await fetch(presUrl(),{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify(b)});
+  if(r.ok){pres=x.d;if(view==='equipo'&&!$('#dlg').open)draw();return}
+  if(r.status!==409&&r.status!==422)return}catch(e){return}}}
+setInterval(beat,180000);setTimeout(beat,6000);
+setInterval(()=>{if(view==='equipo')loadPres()},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){beat();if(view==='equipo')loadPres()}});
+
+let dl={run:false,order:[],i:0,show:localStorage.getItem('dt_dshow')!=='0'};
+const away=p=>tasks.find(t=>(t.tipo==='baja'||t.tipo==='vacaciones')&&has(t,p.id)&&t.status!=='finalizada'&&(!t.start||t.start<=f(today)));
+function dStart(){const ps=people.filter(p=>!p.noDaily&&!away(p));if(!ps.length)return;for(let i=ps.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ps[i],ps[j]]=[ps[j],ps[i]]}dl.run=true;dl.order=ps.map(p=>p.id);dl.i=0;draw()}
+function dNext(){if(dl.i<dl.order.length)dl.i++;draw()}
+function dPrev(){if(dl.i>0)dl.i--;draw()}
+function dStop(){dl.run=false;draw()}
+function dShow(v){dl.show=v;localStorage.setItem('dt_dshow',v?'1':'0');draw()}
+function togDaily(id){if(ro()||!isAdmin())return;const p=person(id);p.noDaily=!p.noDaily;commit()}
+function daily(){
+ dl.order=dl.order.filter(person);
+ if(dl.run){const N=dl.order.length;
+  if(dl.i>=N)return `<div class="dl"><div class="dl-name">🎉 ¡Daily terminada!</div><div class="dl-n">Han intervenido ${N} ${N===1?'persona':'personas'}</div><button class="btn big" onclick="dStart()">Volver a sortear</button> <button class="btn ghost big" onclick="dStop()">Salir</button></div>`;
+  const p=person(dl.order[dl.i]),ts=tasks.filter(t=>has(t,p.id)&&t.status!=='finalizada');
+  return `<div class="dl"><div class="dl-name">${esc(p.name)}</div><div class="dl-n">${dl.i+1} de ${N}</div>
+ <button class="btn big" onclick="dNext()">Siguiente ▸</button>
+ <div style="margin-top:12px"><button class="btn ghost sm" onclick="dPrev()"${dl.i?'':' disabled'}>◂ Anterior</button> <button class="btn ghost sm" onclick="dStop()">Salir</button></div>
+ ${dl.show?`<div class="dl-t">${ts.length?ts.map(t=>taskCard(t,p.id)).join(''):'<div class="free"><span>Sin tarea asignada</span></div>'}</div>`:''}
+ <label class="sub" style="display:block;margin-top:14px"><input type="checkbox" style="width:auto" ${dl.show?'checked':''} onchange="dShow(this.checked)"> Mostrar sus tareas</label></div>`}
+ const canEdit=isAdmin()&&!ro(),n=people.filter(p=>!p.noDaily&&!away(p)).length;
+ return `<div class="top"><div><h1>🎲 Daily</h1><div class="sub">Orden aleatorio de intervención · ${n} de ${people.length} participan</div></div></div>
+ <div class="dl-set">${people.map(p=>{const a=away(p);return `<label class="row" style="cursor:${canEdit&&!a?'pointer':'default'}"><input type="checkbox" style="width:auto" ${a||p.noDaily?'':'checked'} ${canEdit&&!a?'':'disabled'} onchange="togDaily(${p.id})"><div class="grow"><b>${esc(p.name)}</b><div class="sub">${esc(p.role)}</div></div>${a?`<span class="chip s-${a.tipo}">${a.tipo==='baja'?'De baja · excluido':'De vacaciones · excluido'}</span>`:p.noDaily?'<span class="chip s-parada">Excluido</span>':''}</label>`}).join('')||'<div class="tip">Añade personas en Equipo.</div>'}</div>
+ <div style="margin:16px 0"><button class="btn big" onclick="dStart()"${n?'':' disabled'}>🎲 Empezar sorteo (${n})</button></div>
+ ${canEdit?'':'<div class="tip">Solo un administrador cambia quién participa.</div>'}
+ <label class="sub"><input type="checkbox" style="width:auto" ${dl.show?'checked':''} onchange="dShow(this.checked)"> Mostrar las tareas de cada persona mientras habla</label>`;
+}
+document.addEventListener('keydown',e=>{if(view!=='daily'||!dl.run||$('#dlg').open||/INPUT|TEXTAREA|SELECT|BUTTON/.test((e.target||{}).tagName||''))return;
+ if(e.key===' '||e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();dNext()}else if(e.key==='ArrowLeft')dPrev();else if(e.key==='Escape')dStop()});
 function dayCheck(){const n=new Date();n.setHours(0,0,0,0);if(n.getTime()===today.getTime())return;const old=f(today);today=n;if(sel===old){sel=f(today);wk=0}draw()}
 setInterval(dayCheck,30000);
 addEventListener('focus',dayCheck);

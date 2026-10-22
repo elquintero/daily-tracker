@@ -40,3 +40,11 @@ En *Equipo → Configurar* existe un selector *Rol* (administrador o invitado de
 ## Actualizar la app
 
 Sube los ficheros nuevos al repositorio de la app. El service worker usa la red primero, así que con conexión se carga siempre la versión más reciente; la copia en caché solo sirve sin conexión. Cambia `V='dt-vNN'` en `sw.js` en cada versión para limpiar cachés antiguas. El pie de página muestra la versión instalada a todos; el registro de novedades, que se abre al pulsarlo, solo lo ve un administrador.
+
+## Quién está conectado
+
+En *Equipo* cada persona tiene un punto **verde** si está conectada ahora (con sesión iniciada) y gris si no, con «visto hace…». Cada dispositivo con sesión iniciada y la pestaña visible escribe un latido en `presence.json` (en el repositorio de datos) cada 3 minutos; se considera conectado quien ha dado señal en los últimos 7 minutos. Cada latido es un commit pequeño de ese fichero, así que el historial del repositorio de datos crecerá; el fichero se crea solo.
+
+## Daily (sorteo)
+
+El menú *Daily* sustituye al script de Python: sortea el orden de intervención y muestra una persona cada vez («3 de 10») con el botón *Siguiente* (también con Espacio, Enter o →; ← vuelve atrás; Esc sale). Al llegar al final ofrece volver a sortear. Un administrador marca quién participa; quien tiene una baja o vacaciones activas queda excluido automáticamente. Opcionalmente muestra las tareas de la persona que habla.

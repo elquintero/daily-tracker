@@ -135,7 +135,7 @@ main{padding:14px 12px 90px}
 <script>
 const $=s=>document.querySelector(s);
 const f=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-const today=new Date();today.setHours(0,0,0,0);
+let today=new Date();today.setHours(0,0,0,0);
 const off=n=>{const d=new Date(today);d.setDate(d.getDate()+n);return f(d)};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ST={proceso:'En proceso',parada:'Parada',pendiente:'Pendiente',finalizada:'Finalizada'};
@@ -191,7 +191,7 @@ function diario(){
  const bl=tasks.filter(t=>!t.owners.length&&t.status==='pendiente');
  const lbl=new Date(sel).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});
  return `<div class="top"><div><h1>Daily · ${lbl}</h1><div class="sub">${sel===f(today)?'Hoy · ':''}${people.length} personas · ${tasks.filter(t=>t.status==='proceso'&&isT(t)).length} tareas en proceso</div></div>
- <button class="btn" onclick="openTask(0)">+ Nueva tarjeta</button></div>
+ <button class="btn" onclick="openTask(0)">+ Nueva tarea</button></div>
  <div class="week">${week()}</div>
  <div class="layout"><div>
  ${urg.length?`<div class="urg"><h3>${PI}Prioritarias</h3>${urg.map(t=>`<div onclick="openTask(${t.id})"><span><b>${esc(t.title)}</b> · ${t.owners.length?esc(names(t)):'Sin asignar'}</span><span>${dur(t)}</span></div>`).join('')}</div>`:''}
@@ -259,8 +259,8 @@ function stats(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.13.0',BUILD='19 oct 2026';
-const LOGS=[['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.14.0',BUILD='19 oct 2026';
+const LOGS=[['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){if(!canLog())return;const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
@@ -291,7 +291,7 @@ function prio(){
 function editP(id){const p=person(id),d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Editar persona</h2><label>Nombre</label><input id="e-n" value="${esc(p.name)}"><label>Rol</label><input id="e-r" value="${esc(p.role)}"><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="saveP(${id})">Guardar</button></div>`;d.showModal()}
 function saveP(id){const p=person(id),n=$('#e-n').value.trim();if(!n)return;p.name=n;p.role=$('#e-r').value.trim()||'—';$('#dlg').close();commit()}
 function delP(id){const p=person(id),rel=tasks.filter(t=>has(t,id)),act=rel.filter(t=>isT(t)&&t.status!=='finalizada'),fin=rel.filter(t=>isT(t)&&t.status==='finalizada'),sp=rel.filter(t=>!isT(t));
- if(rel.length){if(!confirm(`${p.name} tiene ${rel.length} tarjeta(s) relacionada(s):\n· ${act.length} tarea(s) activa(s): quedarán sin asignar (vuelven al backlog si nadie más las tiene)\n· ${fin.length} finalizada(s): se conservan en el histórico sin esta persona\n· ${sp.length} de sin tarea, baja o vacaciones: se borran\n\n¿Eliminar de todas formas?`))return}
+ if(rel.length){if(!confirm(`${p.name} tiene ${rel.length} tarea(s) relacionada(s):\n· ${act.length} tarea(s) activa(s): quedarán sin asignar (vuelven al backlog si nadie más las tiene)\n· ${fin.length} finalizada(s): se conservan en el histórico sin esta persona\n· ${sp.length} de sin tarea, baja o vacaciones: se borran\n\n¿Eliminar de todas formas?`))return}
  else if(!confirm('¿Quitar a '+p.name+' del equipo?'))return;
  people=people.filter(x=>x.id!==id);tasks=tasks.filter(t=>!(!isT(t)&&has(t,id)));
  tasks.forEach(t=>{if(has(t,id)){t.owners=t.owners.filter(x=>x!==id);if(!t.owners.length&&t.status!=='finalizada'){t.status='pendiente';t.start='';t.end=''}}});commit()}
@@ -299,8 +299,8 @@ function delP(id){const p=person(id),rel=tasks.filter(t=>has(t,id)),act=rel.filt
 function openTask(id,owner){if(pend)applyPending();if(id&&!tasks.find(x=>x.id===id)){alert('Esa tarea ya no existe.');return}if(isUser()&&!id&&!me()){openMe();return}
  const t=id?tasks.find(x=>x.id===id):{title:'',desc:'',start:f(today),end:'',status:owner===null?'pendiente':'proceso',owners:isUser()?(me()?[me().id]:[]):owner?[owner]:[],created:f(today),est:'',urgent:false,notes:[]};
  const d=$('#dlg');
- d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">${id?'Tarjeta':'Nueva tarjeta'}</h2>
- <label>Tipo de tarjeta</label><select id="f-k" onchange="tipoChg()">${[['tarea','Tarea'],['libre','Sin tarea (desasignado)'],['baja','De baja'],['vacaciones','Vacaciones']].map(([k,v])=>`<option value="${k}" ${k===(t.tipo||'tarea')?'selected':''}>${v}</option>`).join('')}</select>
+ d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">${id?'Tarea':'Nueva tarea'}</h2>
+ <label>Tipo de tarea</label><select id="f-k" onchange="tipoChg()">${[['tarea','Tarea'],['libre','Sin tarea (desasignado)'],['baja','De baja'],['vacaciones','Vacaciones']].map(([k,v])=>`<option value="${k}" ${k===(t.tipo||'tarea')?'selected':''}>${v}</option>`).join('')}</select>
  <label>Título</label><input id="f-t" value="${esc(t.title)}">
  <div id="f-dw"><label>Descripción</label><textarea id="f-d" rows="2">${esc(t.desc)}</textarea></div>
  <div class="two"><div style="grid-column:1/-1"><label>Personas asignadas (sin marcar = backlog)</label><div class="ms" id="f-o"><div class="ms-f" onclick="msTog()"><span id="ms-c" class="ms-cs"></span><span class="ms-ar">▾</span></div><div class="ms-p" id="ms-p" hidden><input id="ms-q" placeholder="Buscar persona…" oninput="msDraw()"><div id="ms-l"></div></div></div></div>
@@ -374,7 +374,7 @@ function save(id){if(isUser()&&id){const t=tasks.find(x=>x.id===id),ok=n=>n.d===
   if(!(me()&&has(t,me().id))){$('#dlg').close();return}
   {const st=$('#f-s').value;if(st!==t.status&&ST[st]&&st!=='pendiente'){t.status=st;if(st==='finalizada'){if(!t.end)t.end=f(today)}else t.end=''}}t.notes=t.notes.filter(n=>!ok(n)).concat(nd.filter(n=>n.t.trim()&&ok(n)).map(n=>({d:n.d,t:n.t.trim()}))).sort((a,b)=>a.d.localeCompare(b.d));$('#dlg').close();commit();return}
  const title=$('#f-t').value.trim();if(!title)return;
- const os=ms.slice(),k=$('#f-k').value;if(k!=='tarea'&&os.length!==1){alert('Esta tarjeta debe tener exactamente una persona.');return}let st=$('#f-s').value,end=$('#f-e').value;
+ const os=ms.slice(),k=$('#f-k').value;if(k!=='tarea'&&os.length!==1){alert('Esta tarea debe tener exactamente una persona.');return}let st=$('#f-s').value,end=$('#f-e').value;
  if(st==='finalizada'&&!end)end=f(today);
  const base={title,desc:$('#f-d').value,owners:os,status:os.length?st:'pendiente',start:$('#f-i').value,end,urgent:k==='tarea'&&$('#f-u').checked,tipo:k,est:k==='tarea'?$('#f-x').value:'',created:$('#f-c').value||f(today)};
  if(isUser()){base.owners=[me().id];base.start=f(today);base.created=f(today);base.status='proceso';base.end=''}
@@ -455,6 +455,10 @@ draw();loadAppCfg().then(()=>{draw();pull()});
 setInterval(()=>{if(!dirty&&!pushing&&!$('#dlg').open)check()},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!dirty&&!$('#dlg').open)check()});
 addEventListener('online',()=>dirty?push():check());
+function dayCheck(){const n=new Date();n.setHours(0,0,0,0);if(n.getTime()===today.getTime())return;const old=f(today);today=n;if(sel===old){sel=f(today);wk=0}draw()}
+setInterval(dayCheck,30000);
+addEventListener('focus',dayCheck);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)dayCheck()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>

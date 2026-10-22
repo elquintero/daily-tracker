@@ -20,6 +20,7 @@ PWA sin servidor: la app se publica en GitHub Pages y los datos viven en un `dat
 - Si dos personas guardan a la vez gana la primera. La segunda ve el aviso de conflicto, la app recarga los datos y hay que repetir el cambio.
 - El token se guarda solo en el navegador de cada dispositivo (localStorage). Usa un token limitado al repo de datos y no lo compartas.
 - Sin conexión se puede consultar y editar; los cambios se envían al volver la red.
+- Si dejas la app abierta y cambia el día, lo detecta y se actualiza sola (calendario, fechas y contadores de días).
 
 ## Usuarios y administradores (visibilidad, no seguridad)
 

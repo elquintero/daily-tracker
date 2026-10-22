@@ -4,13 +4,13 @@ PWA sin servidor: la app se publica en GitHub Pages y los datos viven en un `dat
 
 ## Puesta en marcha
 
-1. **Repositorio de la app** (público, para usar GitHub Pages gratis): crea `daily-tracker` y sube `index.html`, `sw.js`, `manifest.webmanifest`, `icon.svg`, `icon-192.png` e `icon-512.png`. En *Settings → Pages* elige la rama `main` y la carpeta `/ (root)`. La URL será `https://TU_USUARIO.github.io/daily-tracker/`.
+1. **Repositorio de la app** (público, para usar GitHub Pages gratis): crea `daily-tracker` y sube `index.html`, `sw.js`, `manifest.webmanifest`, `config.json`, `icon.svg`, `icon-192.png` e `icon-512.png`. En `config.json` pon el repositorio de datos (`usuario/daily-tracker-data`); no es un secreto, solo el nombre. En *Settings → Pages* elige la rama `main` y la carpeta `/ (root)`. La URL será `https://TU_USUARIO.github.io/daily-tracker/`.
 2. **Repositorio de datos** (privado): crea `daily-tracker-data` y sube `data.json`. No uses el mismo repositorio que la app: cada guardado haría un commit y Pages se reconstruiría cada vez, y además los datos del equipo quedarían públicos.
 3. **Token**: *GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate*.
    - Repository access: *Only select repositories* → `daily-tracker-data`.
    - Permissions → Repository permissions → **Contents: Read and write**.
    - Pon una caducidad (por ejemplo 90 días) y renueva el token cuando caduque.
-4. Abre la URL de Pages, pulsa **Equipo → Configurar** (o el indicador de sincronización del menú lateral) y rellena `usuario/daily-tracker-data` y el token. Repite en cada dispositivo.
+4. Abre la URL de Pages, pulsa **Equipo → Configurar** (o el indicador de sincronización del menú lateral) y pega tu token. El repositorio de datos ya viene de `config.json`, así que solo un administrador identificado ve el campo *Repositorio* (para cambiarlo en su dispositivo). Repite en cada dispositivo.
 5. Instálala desde el navegador: *Instalar app* en Chrome/Edge o *Añadir a pantalla de inicio* en móvil.
 
 ## Cómo funciona

@@ -213,7 +213,7 @@ function backlog(){
 }
 function equipo(){
  return `<div class="top"><div><h1>Configuración · Equipo</h1><div class="sub">Alta de personas del proyecto</div></div></div>
- <div class="row"><div class="grow"><b>Sincronización con GitHub</b><div class="sub">${cfg.repo?esc(cfg.repo)+(ro()?' · invitado (solo lectura)':' · administrador'):'No configurada · los datos solo están en este navegador'}</div></div><button class="btn ghost sm" onclick="openCfg()">Configurar</button></div>
+ <div class="row"><div class="grow"><b>Sincronización con GitHub</b><div class="sub">${repo()?(me()&&me().admin?esc(repo())+' · administrador':ro()?'Conectado · invitado (solo lectura)':'Conectado'):'No configurada · los datos solo están en este navegador'}</div></div><button class="btn ghost sm" onclick="openCfg()">Configurar</button></div>
  ${linked()&&!ro()?`<div class="row"><div class="grow"><b>Tu usuario</b><div class="sub">${me()?esc(me().name)+' · '+(me().admin?'Administrador':'Usuario'):'Sin elegir'}</div></div><button class="btn ghost sm" onclick="openMe()">Cambiar</button>${me()&&!me().admin?`<button class="btn sm" onclick="openAdmin()">Soy administrador…</button>`:''}${isAdmin()?`<button class="btn ghost sm" onclick="openPw()">Contraseña admin</button>`:''}</div>`:''}
  <div class="form"><input id="pn" placeholder="Nombre"><input id="pr" placeholder="Rol (Backend, QA…)"><button class="btn" onclick="addP()">Añadir</button></div>
  ${people.map(p=>`<div class="row"><div class="av">${esc(ini(p.name))}</div><div class="grow"><b>${esc(p.name)}</b><div class="sub">${esc(p.role)} · ${tasks.filter(t=>has(t,p.id)&&isT(t)&&t.status!=='finalizada').length} tareas activas${p.admin?' · <b>Administrador</b>':''}${linked()&&isAdmin()&&!p.pw?' · sin contraseña':''}</div></div>${linked()&&isAdmin()?`<button class="btn ghost sm" onclick="setAdm(${p.id})">${p.admin?'Quitar admin':'Hacer admin'}</button>`:''}${linked()&&isAdmin()&&p.pw?`<button class="btn ghost sm" onclick="resetPw(${p.id})">Restablecer clave</button>`:''}<button class="btn ghost sm" onclick="editP(${p.id})">Editar</button><button class="btn ghost sm" onclick="delP(${p.id})">Quitar</button></div>`).join('')}
@@ -259,8 +259,8 @@ function stats(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.12.3',BUILD='19 oct 2026';
-const LOGS=[['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.13.0',BUILD='19 oct 2026';
+const LOGS=[['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarjeta de vacaciones'],['0.5.0','Tipos de tarjeta (tarea, sin tarea, baja) y pie con versión'],['0.4.0','Tarjeta «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){if(!canLog())return;const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
@@ -391,7 +391,8 @@ function loadDemo(){const o=JSON.parse(DEMO);people=o.people;tasks=o.tasks;norm(
 /* Persistencia: caché local + data.json en GitHub (API Contents) */
 let cfg={};try{cfg=JSON.parse(localStorage.getItem('dt_cfg')||'{}')}catch(e){}
 const ro=()=>cfg.role==='guest';
-let auth=null,pend=null,dis=null;
+let auth=null,pend=null,dis=null,appRepo='';
+const repo=()=>cfg.repo||appRepo;
 const me=()=>people.find(p=>p.id===cfg.me);
 const isAdmin=()=>!linked()||people.length===0||!!(me()&&me().admin);
 const isUser=()=>!!linked()&&!ro()&&!isAdmin();
@@ -400,9 +401,9 @@ const rdo=(t,id)=>ro()||(isUser()&&!!id&&!(me()&&has(t,me().id)));
 const canAdd=pid=>!ro()&&(isAdmin()||(isUser()&&!!me()&&me().id===pid));
 let sha=null,dirty=false,pushing=false,queued=false,timer=null;
 const hora=()=>new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-const apiUrl=()=>`https://api.github.com/repos/${cfg.repo}/contents/${cfg.path||'data.json'}`;
+const apiUrl=()=>`https://api.github.com/repos/${repo()}/contents/${cfg.path||'data.json'}`;
 const H=()=>({Authorization:'Bearer '+cfg.token,Accept:'application/vnd.github+json'});
-const linked=()=>cfg.repo&&cfg.token;
+const linked=()=>repo()&&cfg.token;
 function setSt(c,m){const e=$('#sync');if(e){e.className='sync '+c;e.textContent=(ro()?'👁 Invitado · ':'')+m}}
 const snap=()=>JSON.stringify({version:1,updated:new Date().toISOString(),people,tasks,auth},null,1);
 function cache(){try{localStorage.setItem('dt_cache',JSON.stringify({people,tasks,auth}))}catch(e){}}
@@ -440,16 +441,17 @@ async function push(){
  catch(e){setSt('err',e.message==='403'?'Sin permiso de escritura: token de solo lectura o límite de GitHub':'No se pudo guardar ('+e.message+')')}
  pushing=false;if(queued){queued=false;push()}}
 function openCfg(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Sincronizar con GitHub</h2>
-<div class="tip">Los datos se guardan como data.json en un repositorio privado tuyo. El token solo se guarda en este navegador.</div>
-<label>Repositorio de datos (usuario/repo)</label><input id="c-r" value="${esc(cfg.repo||'')}" placeholder="miusuario/daily-tracker-data">
+<div class="tip">Los datos se guardan en un repositorio privado. El token solo se guarda en este navegador.</div>
+${!repo()||(linked()&&me()&&me().admin)?`<label>Repositorio de datos (usuario/repo)</label><input id="c-r" value="${esc(cfg.repo||'')}" placeholder="${esc(appRepo||'usuario/repositorio')}">`:''}
 <label>Token fine-grained (permiso Contents: lectura y escritura)</label><input id="c-t" type="password" value="${esc(cfg.token||'')}">
 ${linked()&&me()&&me().admin?`<label>Rol</label><select id="c-ro"><option value="admin" ${cfg.role!=='guest'?'selected':''}>Administrador (token de lectura y escritura)</option><option value="guest" ${cfg.role==='guest'?'selected':''}>Invitado (token de solo lectura)</option></select>`:''}
 ${linked()&&me()&&me().admin?`<div class="two"><div><label>Fichero</label><input id="c-p" value="${esc(cfg.path||'data.json')}"></div><div><label>Rama (opcional)</label><input id="c-b" value="${esc(cfg.branch||'')}"></div></div>`:''}
 <div class="acts"><button class="btn ghost" style="margin-right:auto" onclick="saveCfg(1)">Desconectar</button><button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="saveCfg()">Guardar y sincronizar</button></div>`;d.showModal()}
-function saveCfg(x){cfg=x?{}:{repo:$('#c-r').value.trim(),token:$('#c-t').value.trim(),path:($('#c-p')?$('#c-p').value.trim():cfg.path)||'data.json',branch:$('#c-b')?$('#c-b').value.trim():(cfg.branch||''),role:$('#c-ro')?$('#c-ro').value:cfg.role,me:cfg.me};localStorage.setItem('dt_cfg',JSON.stringify(cfg));sha=null;$('#dlg').close();draw();pull()}
+function saveCfg(x){cfg=x?{}:{repo:$('#c-r')?$('#c-r').value.trim():cfg.repo,token:$('#c-t').value.trim(),path:($('#c-p')?$('#c-p').value.trim():cfg.path)||'data.json',branch:$('#c-b')?$('#c-b').value.trim():(cfg.branch||''),role:$('#c-ro')?$('#c-ro').value:cfg.role,me:cfg.me};localStorage.setItem('dt_cfg',JSON.stringify(cfg));sha=null;$('#dlg').close();draw();pull()}
 
 try{const c=JSON.parse(localStorage.getItem('dt_cache')||'null');if(c){people=c.people||[];tasks=c.tasks||[];auth=c.auth||null;norm()}}catch(e){}
-draw();pull();
+async function loadAppCfg(){try{const r=await fetch('config.json',{cache:'no-cache'});if(r.ok){const c=await r.json();appRepo=(c.repo||'').trim()}}catch(e){}}
+draw();loadAppCfg().then(()=>{draw();pull()});
 setInterval(()=>{if(!dirty&&!pushing&&!$('#dlg').open)check()},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!dirty&&!$('#dlg').open)check()});
 addEventListener('online',()=>dirty?push():check());

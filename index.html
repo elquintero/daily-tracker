@@ -87,6 +87,8 @@ td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border
 .sync{margin-top:auto;font-size:12px;padding:8px 10px;border-radius:10px;cursor:pointer;background:var(--steel-l);color:var(--steel-d)}.sync.err{background:var(--urgb);color:var(--urg)}.sync.busy{color:var(--mute)}
 .s-baja{background:#e3e8fb;color:#4c5bb5}.task.baja{background:#eef1fb;border-color:#aab6e6}.task.baja:hover{border-color:#6f7fd0}
 .foot{margin-top:28px;padding-top:10px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--mute)}.foot.lg{cursor:pointer}.foot.lg:hover{color:var(--steel-d)}
+.tabs{display:flex;gap:4px;background:var(--steel-l);border-radius:12px;padding:4px;margin:0 0 16px;width:fit-content}.tabs button{border:0;background:none;padding:7px 18px;border-radius:9px;cursor:pointer;color:var(--steel-d);font-weight:600}.tabs button.on{background:var(--card);box-shadow:0 1px 3px rgba(30,50,80,.15)}
+.qf{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}.qf label{margin:0 0 3px}
 .dot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#b9c4d0;border:2px solid var(--card)}.dot.on{background:#2fb36b}
 .dl{max-width:760px;margin:0 auto;text-align:center;padding-top:6px}.dl-name{font-size:clamp(30px,7vw,76px);font-weight:700;color:var(--steel-d);margin:26px 0 8px;line-height:1.1}.dl-n{font-size:clamp(18px,3vw,26px);color:var(--mute);margin-bottom:22px}.dl-t{text-align:left;max-width:560px;margin:22px auto 0}.dl-set{max-width:640px}
 .btn.big{font-size:20px;padding:12px 34px}.btn:disabled{opacity:.5;cursor:default}
@@ -224,7 +226,7 @@ function equipo(){
  <div class="tip">Datos guardados en un fichero JSON (en esta maqueta solo en memoria).</div>`;
 }
 function idle(p){const e=tasks.filter(t=>has(t,p.id)&&t.end&&isT(t)).map(t=>t.end).sort().pop();return Math.max(0,Math.round((new Date(f(today))-new Date(e||p.alta||f(today)))/864e5))}
-function stats(){
+function statsAct(){
  const real=tasks.filter(isT),lib=tasks.filter(t=>t.tipo==='libre'),baj=tasks.filter(t=>t.tipo==='baja'),vac=tasks.filter(t=>t.tipo==='vacaciones'),sp=tasks.filter(t=>!isT(t));
  const fin=real.filter(t=>t.status==='finalizada');
  const avg=a=>a.length?Math.round(a.reduce((x,t)=>x+days(t),0)/a.length):0;
@@ -240,7 +242,7 @@ function stats(){
  const bar=(n,l)=>`<div class='bar b-${l}' style='width:${Math.max(3,n/max*100)}%'></div>`;
  const all=real.filter(t=>t.owners.length).slice().sort((a,b)=>days(b)-days(a));
  const lc=lib.filter(t=>t.status==='finalizada');
- return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>Tiempo de desarrollo, tiempo sin tarea y bajas por persona</div></div></div>
+ return `
  <div class='kpis'>
  <div class='kpi'><b>${avg(fin)?d(avg(fin)):'—'}</b><span>Tiempo medio por tarea finalizada</span></div>
  <div class='kpi'><b>${real.filter(t=>t.status==='proceso').length}</b><span>En proceso</span></div>
@@ -263,8 +265,8 @@ function stats(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.15.2',BUILD='19 oct 2026';
-const LOGS=[['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.16.0',BUILD='19 oct 2026';
+const LOGS=[['0.16.0','Estadísticas con dos pestañas: Actual y Consultas del histórico de tareas'],['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){if(!canLog())return;const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
@@ -274,6 +276,47 @@ function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
  fs.innerHTML=(sp?[['proceso','En curso'],['finalizada',k==='baja'?'Alta (finalizada)':k==='vacaciones'?'Vuelta (finalizada)':'Cerrado (finalizada)']]:Object.entries(ST)).map(([a,b])=>`<option value="${a}">${b}</option>`).join('');
  fs.value=[...fs.options].some(o=>o.value===sv)?sv:'proceso'}
 function norm(){tasks.forEach(t=>{if(!t.tipo)t.tipo=t.libre?'libre':'tarea';delete t.libre;if(!t.owners)t.owners=t.owner!=null?[t.owner]:[];delete t.owner;if(!t.created)t.created=t.start||(t.notes&&t.notes[0]&&t.notes[0].d)||f(today);if(t.est===undefined)t.est=''})}
+let stTab='act',q={txt:'',per:'',est:'',tip:'',pri:'',by:'start',d1:'',d2:'',late:false,ord:'created-desc'};
+const nz=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+function qSet(k,v){q[k]=v;qDraw()}
+function qDraw(){const e=$('#q-res');if(e)e.innerHTML=qHtml()}
+function qClear(){q={txt:'',per:'',est:'',tip:'',pri:'',by:'start',d1:'',d2:'',late:false,ord:'created-desc'};draw()}
+function qRows(){const t0=nz(q.txt.trim());
+ const L=tasks.filter(t=>{
+  if(q.per==='_none'){if(t.owners.length)return false}else if(q.per&&!has(t,+q.per))return false;
+  if(q.est==='_open'){if(t.status==='finalizada')return false}else if(q.est&&t.status!==q.est)return false;
+  if(q.tip&&(t.tipo||'tarea')!==q.tip)return false;
+  if(q.pri==='1'&&!t.urgent)return false;if(q.pri==='0'&&t.urgent)return false;
+  if(q.late&&!(t.est&&t.status!=='finalizada'&&t.est<f(today)))return false;
+  if(q.d1||q.d2){const v=t[q.by];if(!v)return false;if(q.d1&&v<q.d1)return false;if(q.d2&&v>q.d2)return false}
+  if(t0&&!nz(t.title+' '+(t.desc||'')+' '+t.notes.map(n=>n.t).join(' ')+' '+names(t)).includes(t0))return false;
+  return true});
+ const cmp={'created-desc':(a,b)=>(b.created||'').localeCompare(a.created||''),'created-asc':(a,b)=>(a.created||'~').localeCompare(b.created||'~'),'days-desc':(a,b)=>days(b)-days(a),'days-asc':(a,b)=>days(a)-days(b),'title':(a,b)=>a.title.localeCompare(b.title),'person':(a,b)=>names(a).localeCompare(names(b))}[q.ord]||(()=>0);
+ return L.sort(cmp)}
+function qHtml(){const L=qRows(),d=n=>n===1?'1 día':n+' días',wd=L.filter(t=>t.start),tot=wd.reduce((a,t)=>a+days(t),0);
+ const chip=t=>{const fin=t.status==='finalizada';return isT(t)?`<span class='chip s-${t.status}'>${ST[t.status]}</span>`:`<span class='chip s-${t.tipo}'>${t.tipo==='baja'?(fin?'Alta':'De baja'):t.tipo==='vacaciones'?(fin?'Vacaciones terminadas':'De vacaciones'):(fin?'Periodo cerrado':'Desasignado')}</span>`};
+ return `<div class='sub' style='margin:6px 2px 8px'><b>${L.length}</b> ${L.length===1?'resultado':'resultados'}${wd.length?` · ${d(tot)} acumulados · media ${d(Math.round(tot/wd.length))}`:''}</div>
+ <div class='tw'><table style='min-width:900px'><tr><th>Tarea</th><th>Personas</th><th>Estado</th><th>Creada</th><th>Inicio</th><th>Fin</th><th>Fin estimado</th><th>Días</th></tr>
+ ${L.slice(0,300).map(t=>{const n=t.notes[t.notes.length-1],late=t.est&&t.status!=='finalizada'&&t.est<f(today);return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${t.urgent?PI:''}${esc(t.title)}</span>${n?`<div class='sub'>${esc(n.t).slice(0,80)}</div>`:''}</td><td>${esc(names(t))||'<span class="sub">—</span>'}</td><td>${chip(t)}</td><td>${fmt(t.created)}</td><td>${fmt(t.start)}</td><td>${fmt(t.end)}</td><td>${t.est?fmt(t.est)+(jtxt(t.start,t.est)?` <span class='sub'>· ${jtxt(t.start,t.est)}</span>`:'')+(late?` <span class='t-hi'>· retrasada</span>`:''):'—'}</td><td>${t.start?days(t):'—'}</td></tr>`}).join('')||`<tr><td colspan='8' class='sub'>Ninguna tarea cumple los filtros.</td></tr>`}</table></div>${L.length>300?`<div class='tip'>Mostrando 300 de ${L.length}. Afina los filtros o exporta a CSV.</div>`:''}`}
+function cons(){const o=(v,l,c)=>`<option value="${v}"${String(c)===v?' selected':''}>${l}</option>`,sl=(k,a)=>`<select onchange="qSet('${k}',this.value)">${a.map(x=>o(x[0],x[1],q[k])).join('')}</select>`;
+ return `<div class="qf">
+ <div style="grid-column:1/-1"><label>Texto (título, descripción, seguimiento o persona)</label><input value="${esc(q.txt)}" placeholder="Buscar…" oninput="qSet('txt',this.value)"></div>
+ <div><label>Persona</label>${sl('per',[['','Todas'],['_none','Sin asignar'],...people.map(p=>[String(p.id),esc(p.name)])])}</div>
+ <div><label>Estado</label>${sl('est',[['','Todos'],['_open','Abiertas (no finalizadas)'],['proceso','En proceso'],['parada','Parada'],['pendiente','Pendiente'],['finalizada','Finalizada']])}</div>
+ <div><label>Tipo</label>${sl('tip',[['','Todos'],['tarea','Tarea'],['libre','Sin tarea'],['baja','De baja'],['vacaciones','Vacaciones']])}</div>
+ <div><label>Prioridad</label>${sl('pri',[['','Todas'],['1','Solo prioritarias'],['0','No prioritarias']])}</div>
+ <div><label>Filtrar fechas por</label>${sl('by',[['start','Inicio'],['end','Fin'],['created','Creación'],['est','Fin estimado']])}</div>
+ <div><label>Desde</label><input type="date" value="${q.d1}" onchange="qSet('d1',this.value)"></div>
+ <div><label>Hasta</label><input type="date" value="${q.d2}" onchange="qSet('d2',this.value)"></div>
+ <div><label>Ordenar por</label>${sl('ord',[['created-desc','Creación (recientes primero)'],['created-asc','Creación (antiguas primero)'],['days-desc','Más días'],['days-asc','Menos días'],['title','Título A–Z'],['person','Persona']])}</div>
+ <div style="display:flex;align-items:end"><label style="display:flex;gap:6px;align-items:center;margin:0 0 9px;color:var(--ink);font-size:14px"><input type="checkbox" style="width:auto" ${q.late?'checked':''} onchange="qSet('late',this.checked)"> Pasadas de fecha estimada</label></div>
+ <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost sm" onclick="qClear()">Limpiar filtros</button><button class="btn sm" onclick="qCsv()">⬇ Exportar CSV</button></div></div>
+ <div id="q-res">${qHtml()}</div>`}
+function qCsvText(){const c=x=>{let v=String(x==null?'':x);if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'},tl={tarea:'Tarea',libre:'Sin tarea',baja:'Baja',vacaciones:'Vacaciones'};
+ const head=['Título','Tipo','Personas','Estado','Prioritaria','Creada','Inicio','Fin','Fin estimado','Días','Jornadas estimadas','Descripción','Seguimiento'];
+ return '\ufeff'+[head,...qRows().map(t=>[t.title,tl[t.tipo||'tarea'],names(t),ST[t.status],t.urgent?'Sí':'No',t.created||'',t.start||'',t.end||'',t.est||'',t.start?days(t):'',jor(t.start,t.est)||'',t.desc||'',t.notes.map(n=>n.d+': '+n.t).join(' | ')])].map(r=>r.map(c).join(';')).join('\r\n')}
+function qCsv(){const b=new Blob([qCsvText()],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tareas-'+f(today)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function stats(){return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>${stTab==='cons'?'Consulta del histórico de tareas':'Tiempo de desarrollo, tiempo sin tarea y bajas por persona'}</div></div></div><div class="tabs"><button class="${stTab==='act'?'on':''}" onclick="stTab='act';draw()">Actual</button><button class="${stTab==='cons'?'on':''}" onclick="stTab='cons';draw()">Consultas</button></div>`+(stTab==='cons'?cons():statsAct())}
 function draw(){document.body.classList.toggle('ro',ro());document.body.classList.toggle('ur',isUser());const dn=$('[data-v="daily"]');if(dn)dn.style.display=isMain()?'':'none';if(view==='daily'&&!isMain())view='diario';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));$('#main').innerHTML={diario,daily,prio,backlog,equipo,stats}[view]()+`<footer class="foot${canLog()?' lg':''}"${canLog()?' onclick="openLog()"':''}>Daily Tracker · v${VER} beta · ${BUILD}${ro()?' · 👁 modo invitado':''}${linked()&&!ro()&&me()?' · 👤 '+esc(me().name)+(me().admin?' (admin)':''):''}${canLog()?' · ver novedades':''}</footer>`}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;draw();if(view==='equipo')loadPres()});
 

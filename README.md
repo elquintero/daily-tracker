@@ -48,3 +48,7 @@ En *Equipo* cada persona tiene un punto **verde** si está conectada ahora (con 
 ## Daily (sorteo)
 
 El menú *Daily* sustituye al script de Python: sortea el orden de intervención y muestra una persona cada vez («3 de 10») con el botón *Siguiente* (también con Espacio, Enter o →; ← vuelve atrás; Esc sale). Al llegar al final ofrece volver a sortear. Solo lo ve el **administrador principal**: quien creó la contraseña de administrador (se puede transferir con *Hacer principal* en *Equipo*; si la contraseña se creó con una versión anterior y no consta quién fue, lo ven todos los administradores hasta que uno pulse *Hacer principal*). El principal marca quién participa; quien tiene una baja o vacaciones activas queda excluido automáticamente. Opcionalmente muestra las tareas de la persona que habla.
+
+## Estadísticas: Actual y Consultas
+
+*Estadísticas* tiene dos pestañas. **Actual** es el resumen de siempre. **Consultas** busca en todo el histórico de tareas (también sin tarea, bajas y vacaciones) por texto (título, descripción, seguimiento o persona, sin distinguir tildes), persona (o sin asignar), estado, tipo, prioridad, un rango de fechas sobre inicio, fin, creación o fin estimado, y tareas pasadas de su fecha estimada. Permite ordenar y **exportar el resultado a CSV** (abre bien en Excel). Pulsa el título para abrir la tarea.

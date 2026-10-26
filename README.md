@@ -52,3 +52,7 @@ El menú *Daily* sustituye al script de Python: sortea el orden de intervención
 ## Estadísticas: Actual y Consultas
 
 *Estadísticas* tiene dos pestañas. **Actual** es el resumen de siempre. **Consultas** busca en todo el histórico de tareas (también sin tarea, bajas y vacaciones) por texto (título, descripción, seguimiento o persona, sin distinguir tildes), persona (o sin asignar), estado, tipo, prioridad, un rango de fechas sobre inicio, fin, creación o fin estimado, y tareas pasadas de su fecha estimada. Permite ordenar y **exportar el resultado a CSV** (abre bien en Excel). Pulsa el título para abrir la tarea.
+
+## Reuniones
+
+*Tipo de tarea → Reunión*: fecha, hora, asistentes (varias personas) y si es **interna** o **con el Ministerio**. Se muestra con un icono de calendario tipo Outlook (azul si es interna, morado si es con el Ministerio) en la tarea de cada asistente. Se cierra sola **12 horas después de su hora de inicio**. El menú *Reuniones*, bajo Backlog, lista las de hoy, las próximas y las anteriores, y su icono cambia de color cuando hay reuniones abiertas hoy en el equipo (gris: ninguna; azul: solo internas; morado: alguna con el Ministerio), con un contador. Solo los administradores crean y editan reuniones; el resto las ve en solo lectura.

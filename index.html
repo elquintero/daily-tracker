@@ -89,10 +89,6 @@ td{padding:10px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border
 .foot{margin-top:28px;padding-top:10px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--mute)}.foot.lg{cursor:pointer}.foot.lg:hover{color:var(--steel-d)}
 .tabs{display:flex;gap:4px;background:var(--steel-l);border-radius:12px;padding:4px;margin:0 0 16px;width:fit-content}.tabs button{border:0;background:none;padding:7px 18px;border-radius:9px;cursor:pointer;color:var(--steel-d);font-weight:600}.tabs button.on{background:var(--card);box-shadow:0 1px 3px rgba(30,50,80,.15)}
 .qf{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}.qf label{margin:0 0 3px}
-.cal{width:18px;height:18px;vertical-align:-4px;flex:none}.rbadge{margin-left:auto;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:0 6px}
-.task.reunion{background:#eef4fb;border-color:#9fc2ea}.task.reunion:hover{border-color:#2b6cb0}.task.reunion.min{background:#f8eef6;border-color:#d9a4cc}.task.reunion.min:hover{border-color:#a8328f}
-.s-reunion{background:#dce9f7;color:#2b6cb0}.s-reunion-min{background:#f3dcef;color:#a8328f}
-@media(max-width:700px){nav{overflow-x:auto;justify-content:flex-start}nav button{flex:none;position:relative}.rbadge{position:absolute;top:0;right:0;margin:0}}
 .dot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#b9c4d0;border:2px solid var(--card)}.dot.on{background:#2fb36b}
 .dl{max-width:760px;margin:0 auto;text-align:center;padding-top:6px}.dl-name{font-size:clamp(30px,7vw,76px);font-weight:700;color:var(--steel-d);margin:26px 0 8px;line-height:1.1}.dl-n{font-size:clamp(18px,3vw,26px);color:var(--mute);margin-bottom:22px}.dl-t{text-align:left;max-width:560px;margin:22px auto 0}.dl-set{max-width:640px}
 .btn.big{font-size:20px;padding:12px 34px}.btn:disabled{opacity:.5;cursor:default}
@@ -132,7 +128,6 @@ main{padding:14px 12px 90px}
  <button data-v="daily">🎲 Daily</button>
  <button data-v="prio"><svg class="pi" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> Prioritarias</button>
  <button data-v="backlog">🗂️ Backlog</button>
- <button data-v="reu">📅 Reuniones</button>
  <button data-v="stats">📊 Estadísticas</button>
  <button data-v="equipo">⚙️ Equipo</button>
  <div id="sync" class="sync" onclick="openCfg()">Local</div>
@@ -141,7 +136,7 @@ main{padding:14px 12px 90px}
 </div>
 
 <dialog id="dlg"></dialog>
-<div id="upd" class="upd" hidden><span>🔄 Hay cambios nuevos</span><button class="btn sm" onclick="applyPending()">Actualizar</button><button class="btn ghost sm" onclick="dismissUpd()">Ahora no</button></div>
+<div id="upd" class="upd" hidden><span>🔄 Hay cambios nuevos</span><button class="btn sm" onclick="applyPending()">izar</button><button class="btn ghost sm" onclick="dismissUpd()">Ahora no</button></div>
 
 <script>
 const $=s=>document.querySelector(s);
@@ -190,7 +185,7 @@ function week(){
   h+=`<div class="day ${k===f(today)?'today':''} ${k===sel?'sel':''}" onclick="sel='${k}';draw()"><small>${d.toLocaleDateString('es-ES',{weekday:'short'})}</small><b>${d.getDate()}</b></div>`}
  return h+'<button class="arrow" onclick="wk++;draw()">›</button>';
 }
-function taskCard(t,pid){if(t.tipo==='reunion')return reuCard(t,pid);
+function taskCard(t,pid){
  const n=t.notes[t.notes.length-1];
  return `<div class="task${isT(t)?'':' '+t.tipo}" onclick="openTask(${t.id})">
  <div class="tt"><b>${t.urgent?PI:''}${esc(t.title)}</b><span class="chip ${isT(t)?'s-'+t.status:'s-'+t.tipo}">${isT(t)?ST[t.status]:t.tipo==='baja'?(t.status==='finalizada'?'Alta':'De baja'):t.tipo==='vacaciones'?(t.status==='finalizada'?'Vacaciones terminadas':'De vacaciones'):(t.status==='finalizada'?'Periodo cerrado':'Desasignado')}</span></div>
@@ -232,7 +227,7 @@ function equipo(){
 }
 function idle(p){const e=tasks.filter(t=>has(t,p.id)&&t.end&&isT(t)).map(t=>t.end).sort().pop();return Math.max(0,Math.round((new Date(f(today))-new Date(e||p.alta||f(today)))/864e5))}
 function statsAct(){
- const real=tasks.filter(isT),lib=tasks.filter(t=>t.tipo==='libre'),baj=tasks.filter(t=>t.tipo==='baja'),vac=tasks.filter(t=>t.tipo==='vacaciones'),sp=tasks.filter(t=>!isT(t)&&t.tipo!=='reunion');
+ const real=tasks.filter(isT),lib=tasks.filter(t=>t.tipo==='libre'),baj=tasks.filter(t=>t.tipo==='baja'),vac=tasks.filter(t=>t.tipo==='vacaciones'),sp=tasks.filter(t=>!isT(t));
  const fin=real.filter(t=>t.status==='finalizada');
  const avg=a=>a.length?Math.round(a.reduce((x,t)=>x+days(t),0)/a.length):0;
  const bl=real.filter(t=>!t.owners.length&&t.status==='pendiente');
@@ -258,7 +253,7 @@ function statsAct(){
  <div class='kpi'><b>${lc.length?d(avg(lc)):'—'}</b><span>Tiempo medio hasta asignar tarea</span></div>
  <div class='kpi'><b>${bl.length}</b><span>Pendientes de asignar</span></div></div>
  <div class='th'>Azul = normal · Ámbar desde <input type='number' min='1' value='${LIM.warn}' onchange='LIM.warn=+this.value||1;draw()'> días · Rojo desde <input type='number' min='1' value='${LIM.high}' onchange='LIM.high=+this.value||1;draw()'> días</div>
- <div class='tw'><table><tr><th>Persona</th><th>Situación actual</th><th style='width:20%'>Tiempo</th><th>Finalizadas</th><th>Media días/tarea</th><th>Total sin tarea · ausencias</th></tr>
+ <div class='tw'><table><tr><th>Persona</th><th>Situación </th><th style='width:20%'>Tiempo</th><th>Finalizadas</th><th>Media días/tarea</th><th>Total sin tarea · ausencias</th></tr>
  ${rows.map(r=>{const l=r.ba||r.va?'ok':lv(r.v);return `<tr><td><b>${esc(r.p.name)}</b><div class='sub'>${esc(r.p.role)}</div></td>
  <td>${r.ba?`<div><span class='chip s-baja'>De baja</span> <span class='lnk' onclick='openTask(${r.ba.id})'>desde ${fmt(r.ba.start)}</span> <span class='sub'>· ${d(days(r.ba))}</span></div>`:''}${r.va?`<div><span class='chip s-vacaciones'>De vacaciones</span> <span class='lnk' onclick='openTask(${r.va.id})'>desde ${fmt(r.va.start)}</span> <span class='sub'>· ${d(days(r.va))}</span></div>`:''}${r.act.map(t=>`<div><span class='lnk' onclick='openTask(${t.id})'>${esc(t.title)}</span> <span class='sub'>· ${d(days(t))}${t.status==='parada'?' · parada':''}</span></div>`).join('')}${r.la?`<div><span class='chip s-libre'>Desasignado</span> <span class='lnk' onclick='openTask(${r.la.id})'>desde ${fmt(r.la.start)}</span> <span class='sub'>· ${d(days(r.la))}</span></div>`:(r.act.length||r.ba||r.va)?'':`<b class='t-${l}'>Sin tarea</b> <span class='sub'>· desde hace ${d(r.v)} (sin registrar)</span>`}</td>
  <td>${bar(r.v,l)}<div class='sub t-${l}'>${d(r.v)}</div></td><td>${r.fin}</td><td>${r.med||'—'}</td><td>${r.ln?d(r.lt)+` <span class='sub'>· ${r.ln} ${r.ln===1?'periodo':'periodos'}</span>`:'—'}${r.bn?`<div class='sub'>Baja: ${d(r.bt)}</div>`:''}${r.vn?`<div class='sub'>Vacaciones: ${d(r.vt)}</div>`:''}</td></tr>`}).join('')}</table></div>
@@ -270,17 +265,17 @@ function statsAct(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.17.0',BUILD='19 oct 2026';
-const LOGS=[['0.17.0','Tipo Reunión (interna o con el Ministerio) con hora, cierre automático y menú Reuniones'],['0.16.0','Estadísticas con dos pestañas: Actual y Consultas del histórico de tareas'],['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.16.0',BUILD='19 oct 2026';
+const LOGS=[['0.16.0','Estadísticas con dos pestañas:  y Consultas del histórico de tareas'],['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){if(!canLog())return;const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
-const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones',reunion:'Reunión'};
+const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea',ti=$('#f-t');
  if(!init&&(!ti.value.trim()||Object.values(TD).includes(ti.value)))ti.value=TD[k]||'';
- const re=k==='reunion';$('#f-dw').style.display=sp&&!re?'none':'';$('#f-uw').style.display=sp?'none':'';$('#f-xw').style.display=sp?'none':'';$('#f-cw').style.display=sp?'none':'';$('#f-rw').style.display=re?'':'none';$('#f-rt').style.display=re?'':'none';$('#f-ew').style.display=re?'none':'';$('#f-il').textContent=re?'Fecha':'Fecha inicio';
+ $('#f-dw').style.display=sp?'none':'';$('#f-uw').style.display=sp?'none':'';$('#f-xw').style.display=sp?'none':'';$('#f-cw').style.display=sp?'none':'';
  const sv=$('#f-s').value,fs=$('#f-s');
- fs.innerHTML=(sp?[['proceso','En curso'],['finalizada',k==='baja'?'Alta (finalizada)':k==='vacaciones'?'Vuelta (finalizada)':k==='reunion'?'Cerrada (finalizada)':'Cerrado (finalizada)']]:Object.entries(ST)).map(([a,b])=>`<option value="${a}">${b}</option>`).join('');
+ fs.innerHTML=(sp?[['proceso','En curso'],['finalizada',k==='baja'?'Alta (finalizada)':k==='vacaciones'?'Vuelta (finalizada)':'Cerrado (finalizada)']]:Object.entries(ST)).map(([a,b])=>`<option value="${a}">${b}</option>`).join('');
  fs.value=[...fs.options].some(o=>o.value===sv)?sv:'proceso'}
-function norm(){tasks.forEach(t=>{if(!t.tipo)t.tipo=t.libre?'libre':'tarea';delete t.libre;if(!t.owners)t.owners=t.owner!=null?[t.owner]:[];delete t.owner;if(!t.created)t.created=t.start||(t.notes&&t.notes[0]&&t.notes[0].d)||f(today);if(t.est===undefined)t.est=''});autoClose()}
+function norm(){tasks.forEach(t=>{if(!t.tipo)t.tipo=t.libre?'libre':'tarea';delete t.libre;if(!t.owners)t.owners=t.owner!=null?[t.owner]:[];delete t.owner;if(!t.created)t.created=t.start||(t.notes&&t.notes[0]&&t.notes[0].d)||f(today);if(t.est===undefined)t.est=''})}
 let stTab='act',q={txt:'',per:'',est:'',tip:'',pri:'',by:'start',d1:'',d2:'',late:false,ord:'created-desc'};
 const nz=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 function qSet(k,v){q[k]=v;qDraw()}
@@ -298,17 +293,17 @@ function qRows(){const t0=nz(q.txt.trim());
   return true});
  const cmp={'created-desc':(a,b)=>(b.created||'').localeCompare(a.created||''),'created-asc':(a,b)=>(a.created||'~').localeCompare(b.created||'~'),'days-desc':(a,b)=>days(b)-days(a),'days-asc':(a,b)=>days(a)-days(b),'title':(a,b)=>a.title.localeCompare(b.title),'person':(a,b)=>names(a).localeCompare(names(b))}[q.ord]||(()=>0);
  return L.sort(cmp)}
-function qHtml(){const L=qRows(),d=n=>n===1?'1 día':n+' días',wd=L.filter(t=>t.start&&t.tipo!=='reunion'),tot=wd.reduce((a,t)=>a+days(t),0);
- const chip=t=>{const fin=t.status==='finalizada';return isT(t)?`<span class='chip s-${t.status}'>${ST[t.status]}</span>`:`<span class='chip s-${t.tipo==='reunion'&&t.reu==='ministerio'?'reunion-min':t.tipo}'>${t.tipo==='reunion'?(fin?'Reunión cerrada':'Reunión · '+(t.reu==='ministerio'?'Ministerio':'Interna')):t.tipo==='baja'?(fin?'Alta':'De baja'):t.tipo==='vacaciones'?(fin?'Vacaciones terminadas':'De vacaciones'):(fin?'Periodo cerrado':'Desasignado')}</span>`};
+function qHtml(){const L=qRows(),d=n=>n===1?'1 día':n+' días',wd=L.filter(t=>t.start),tot=wd.reduce((a,t)=>a+days(t),0);
+ const chip=t=>{const fin=t.status==='finalizada';return isT(t)?`<span class='chip s-${t.status}'>${ST[t.status]}</span>`:`<span class='chip s-${t.tipo}'>${t.tipo==='baja'?(fin?'Alta':'De baja'):t.tipo==='vacaciones'?(fin?'Vacaciones terminadas':'De vacaciones'):(fin?'Periodo cerrado':'Desasignado')}</span>`};
  return `<div class='sub' style='margin:6px 2px 8px'><b>${L.length}</b> ${L.length===1?'resultado':'resultados'}${wd.length?` · ${d(tot)} acumulados · media ${d(Math.round(tot/wd.length))}`:''}</div>
  <div class='tw'><table style='min-width:900px'><tr><th>Tarea</th><th>Personas</th><th>Estado</th><th>Creada</th><th>Inicio</th><th>Fin</th><th>Fin estimado</th><th>Días</th></tr>
- ${L.slice(0,300).map(t=>{const n=t.notes[t.notes.length-1],late=t.est&&t.status!=='finalizada'&&t.est<f(today);return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${t.urgent?PI:''}${esc(t.title)}</span>${n?`<div class='sub'>${esc(n.t).slice(0,80)}</div>`:''}</td><td>${esc(names(t))||'<span class="sub">—</span>'}</td><td>${chip(t)}</td><td>${fmt(t.created)}</td><td>${fmt(t.start)}${t.tipo==='reunion'&&t.hora?' '+t.hora:''}</td><td>${fmt(t.end)}</td><td>${t.est?fmt(t.est)+(jtxt(t.start,t.est)?` <span class='sub'>· ${jtxt(t.start,t.est)}</span>`:'')+(late?` <span class='t-hi'>· retrasada</span>`:''):'—'}</td><td>${t.start&&t.tipo!=='reunion'?days(t):'—'}</td></tr>`}).join('')||`<tr><td colspan='8' class='sub'>Ninguna tarea cumple los filtros.</td></tr>`}</table></div>${L.length>300?`<div class='tip'>Mostrando 300 de ${L.length}. Afina los filtros o exporta a CSV.</div>`:''}`}
+ ${L.slice(0,300).map(t=>{const n=t.notes[t.notes.length-1],late=t.est&&t.status!=='finalizada'&&t.est<f(today);return `<tr><td><span class='lnk' onclick='openTask(${t.id})'>${t.urgent?PI:''}${esc(t.title)}</span>${n?`<div class='sub'>${esc(n.t).slice(0,80)}</div>`:''}</td><td>${esc(names(t))||'<span class="sub">—</span>'}</td><td>${chip(t)}</td><td>${fmt(t.created)}</td><td>${fmt(t.start)}</td><td>${fmt(t.end)}</td><td>${t.est?fmt(t.est)+(jtxt(t.start,t.est)?` <span class='sub'>· ${jtxt(t.start,t.est)}</span>`:'')+(late?` <span class='t-hi'>· retrasada</span>`:''):'—'}</td><td>${t.start?days(t):'—'}</td></tr>`}).join('')||`<tr><td colspan='8' class='sub'>Ninguna tarea cumple los filtros.</td></tr>`}</table></div>${L.length>300?`<div class='tip'>Mostrando 300 de ${L.length}. Afina los filtros o exporta a CSV.</div>`:''}`}
 function cons(){const o=(v,l,c)=>`<option value="${v}"${String(c)===v?' selected':''}>${l}</option>`,sl=(k,a)=>`<select onchange="qSet('${k}',this.value)">${a.map(x=>o(x[0],x[1],q[k])).join('')}</select>`;
  return `<div class="qf">
  <div style="grid-column:1/-1"><label>Texto (título, descripción, seguimiento o persona)</label><input value="${esc(q.txt)}" placeholder="Buscar…" oninput="qSet('txt',this.value)"></div>
  <div><label>Persona</label>${sl('per',[['','Todas'],['_none','Sin asignar'],...people.map(p=>[String(p.id),esc(p.name)])])}</div>
  <div><label>Estado</label>${sl('est',[['','Todos'],['_open','Abiertas (no finalizadas)'],['proceso','En proceso'],['parada','Parada'],['pendiente','Pendiente'],['finalizada','Finalizada']])}</div>
- <div><label>Tipo</label>${sl('tip',[['','Todos'],['tarea','Tarea'],['libre','Sin tarea'],['baja','De baja'],['vacaciones','Vacaciones'],['reunion','Reunión']])}</div>
+ <div><label>Tipo</label>${sl('tip',[['','Todos'],['tarea','Tarea'],['libre','Sin tarea'],['baja','De baja'],['vacaciones','Vacaciones']])}</div>
  <div><label>Prioridad</label>${sl('pri',[['','Todas'],['1','Solo prioritarias'],['0','No prioritarias']])}</div>
  <div><label>Filtrar fechas por</label>${sl('by',[['start','Inicio'],['end','Fin'],['created','Creación'],['est','Fin estimado']])}</div>
  <div><label>Desde</label><input type="date" value="${q.d1}" onchange="qSet('d1',this.value)"></div>
@@ -317,12 +312,12 @@ function cons(){const o=(v,l,c)=>`<option value="${v}"${String(c)===v?' selected
  <div style="display:flex;align-items:end"><label style="display:flex;gap:6px;align-items:center;margin:0 0 9px;color:var(--ink);font-size:14px"><input type="checkbox" style="width:auto" ${q.late?'checked':''} onchange="qSet('late',this.checked)"> Pasadas de fecha estimada</label></div>
  <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost sm" onclick="qClear()">Limpiar filtros</button><button class="btn sm" onclick="qCsv()">⬇ Exportar CSV</button></div></div>
  <div id="q-res">${qHtml()}</div>`}
-function qCsvText(){const c=x=>{let v=String(x==null?'':x);if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'},tl={tarea:'Tarea',libre:'Sin tarea',baja:'Baja',vacaciones:'Vacaciones',reunion:'Reunión'};
- const head=['Título','Tipo','Personas','Estado','Prioritaria','Creada','Inicio','Fin','Fin estimado','Días','Jornadas estimadas','Hora','Reunión','Descripción','Seguimiento'];
- return '\ufeff'+[head,...qRows().map(t=>[t.title,tl[t.tipo||'tarea'],names(t),ST[t.status],t.urgent?'Sí':'No',t.created||'',t.start||'',t.end||'',t.est||'',t.start&&t.tipo!=='reunion'?days(t):'',jor(t.start,t.est)||'',t.hora||'',t.reu?(t.reu==='ministerio'?'Con el Ministerio':'Interna'):'',t.desc||'',t.notes.map(n=>n.d+': '+n.t).join(' | ')])].map(r=>r.map(c).join(';')).join('\r\n')}
+function qCsvText(){const c=x=>{let v=String(x==null?'':x);if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'},tl={tarea:'Tarea',libre:'Sin tarea',baja:'Baja',vacaciones:'Vacaciones'};
+ const head=['Título','Tipo','Personas','Estado','Prioritaria','Creada','Inicio','Fin','Fin estimado','Días','Jornadas estimadas','Descripción','Seguimiento'];
+ return '\ufeff'+[head,...qRows().map(t=>[t.title,tl[t.tipo||'tarea'],names(t),ST[t.status],t.urgent?'Sí':'No',t.created||'',t.start||'',t.end||'',t.est||'',t.start?days(t):'',jor(t.start,t.est)||'',t.desc||'',t.notes.map(n=>n.d+': '+n.t).join(' | ')])].map(r=>r.map(c).join(';')).join('\r\n')}
 function qCsv(){const b=new Blob([qCsvText()],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tareas-'+f(today)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function stats(){return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>${stTab==='cons'?'Consulta del histórico de tareas':'Tiempo de desarrollo, tiempo sin tarea y bajas por persona'}</div></div></div><div class="tabs"><button class="${stTab==='act'?'on':''}" onclick="stTab='act';draw()">Actual</button><button class="${stTab==='cons'?'on':''}" onclick="stTab='cons';draw()">Consultas</button></div>`+(stTab==='cons'?cons():statsAct())}
-function draw(){document.body.classList.toggle('ro',ro());document.body.classList.toggle('ur',isUser());const rb=$('[data-v="reu"]');if(rb)rb.innerHTML=reuNav();const dn=$('[data-v="daily"]');if(dn)dn.style.display=isMain()?'':'none';if(view==='daily'&&!isMain())view='diario';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));$('#main').innerHTML={diario,daily,prio,backlog,reu,equipo,stats}[view]()+`<footer class="foot${canLog()?' lg':''}"${canLog()?' onclick="openLog()"':''}>Daily Tracker · v${VER} beta · ${BUILD}${ro()?' · 👁 modo invitado':''}${linked()&&!ro()&&me()?' · 👤 '+esc(me().name)+(me().admin?' (admin)':''):''}${canLog()?' · ver novedades':''}</footer>`}
+function stats(){return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>${stTab==='cons'?'Consulta del histórico de tareas':'Tiempo de desarrollo, tiempo sin tarea y bajas por persona'}</div></div></div><div class="tabs"><button class="${stTab==='act'?'on':''}" onclick="stTab='act';draw()">General</button><button class="${stTab==='cons'?'on':''}" onclick="stTab='cons';draw()">Consultas</button></div>`+(stTab==='cons'?cons():statsAct())}
+function draw(){document.body.classList.toggle('ro',ro());document.body.classList.toggle('ur',isUser());const dn=$('[data-v="daily"]');if(dn)dn.style.display=isMain()?'':'none';if(view==='daily'&&!isMain())view='diario';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));$('#main').innerHTML={diario,daily,prio,backlog,equipo,stats}[view]()+`<footer class="foot${canLog()?' lg':''}"${canLog()?' onclick="openLog()"':''}>Daily Tracker · v${VER} beta · ${BUILD}${ro()?' · 👁 modo invitado':''}${linked()&&!ro()&&me()?' · 👤 '+esc(me().name)+(me().admin?' (admin)':''):''}${canLog()?' · ver novedades':''}</footer>`}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;draw();if(view==='equipo')loadPres()});
 
 function drop(e,pid){e.preventDefault();if(ro()||isUser())return;assign(+e.dataTransfer.getData('t'),pid)}
@@ -342,25 +337,23 @@ function prio(){
 }
 function editP(id){const p=person(id),d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Editar persona</h2><label>Nombre</label><input id="e-n" value="${esc(p.name)}"><label>Rol</label><input id="e-r" value="${esc(p.role)}"><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="saveP(${id})">Guardar</button></div>`;d.showModal()}
 function saveP(id){const p=person(id),n=$('#e-n').value.trim();if(!n)return;p.name=n;p.role=$('#e-r').value.trim()||'—';$('#dlg').close();commit()}
-function delP(id){if(mainAdm()===id){alert('Es el administrador principal. Transfiere antes el rol a otra persona.');return}const p=person(id),rel=tasks.filter(t=>has(t,id)),act=rel.filter(t=>isT(t)&&t.status!=='finalizada'),fin=rel.filter(t=>isT(t)&&t.status==='finalizada'),sp=rel.filter(t=>!isT(t)&&t.tipo!=='reunion');
+function delP(id){if(mainAdm()===id){alert('Es el administrador principal. Transfiere antes el rol a otra persona.');return}const p=person(id),rel=tasks.filter(t=>has(t,id)),act=rel.filter(t=>isT(t)&&t.status!=='finalizada'),fin=rel.filter(t=>isT(t)&&t.status==='finalizada'),sp=rel.filter(t=>!isT(t));
  if(rel.length){if(!confirm(`${p.name} tiene ${rel.length} tarea(s) relacionada(s):\n· ${act.length} tarea(s) activa(s): quedarán sin asignar (vuelven al backlog si nadie más las tiene)\n· ${fin.length} finalizada(s): se conservan en el histórico sin esta persona\n· ${sp.length} de sin tarea, baja o vacaciones: se borran\n\n¿Eliminar de todas formas?`))return}
  else if(!confirm('¿Quitar a '+p.name+' del equipo?'))return;
- people=people.filter(x=>x.id!==id);tasks=tasks.filter(t=>!(!isT(t)&&t.tipo!=='reunion'&&has(t,id)));
- tasks.forEach(t=>{if(has(t,id)){t.owners=t.owners.filter(x=>x!==id);if(!t.owners.length&&t.status!=='finalizada'&&t.tipo!=='reunion'){t.status='pendiente';t.start='';t.end=''}}});tasks=tasks.filter(t=>!(t.tipo==='reunion'&&!t.owners.length));commit()}
+ people=people.filter(x=>x.id!==id);tasks=tasks.filter(t=>!(!isT(t)&&has(t,id)));
+ tasks.forEach(t=>{if(has(t,id)){t.owners=t.owners.filter(x=>x!==id);if(!t.owners.length&&t.status!=='finalizada'){t.status='pendiente';t.start='';t.end=''}}});commit()}
 
-function openTask(id,owner,tipo0){if(pend)applyPending();if(id&&!tasks.find(x=>x.id===id)){alert('Esa tarea ya no existe.');return}if(isUser()&&!id&&!me()){openMe();return}
- const t=id?tasks.find(x=>x.id===id):{title:'',desc:'',start:f(today),end:'',status:owner===null?'pendiente':'proceso',owners:isUser()?(me()?[me().id]:[]):owner?[owner]:[],created:f(today),est:'',urgent:false,tipo:tipo0||'tarea',hora:'09:00',reu:'interna',notes:[]};
+function openTask(id,owner){if(pend)applyPending();if(id&&!tasks.find(x=>x.id===id)){alert('Esa tarea ya no existe.');return}if(isUser()&&!id&&!me()){openMe();return}
+ const t=id?tasks.find(x=>x.id===id):{title:'',desc:'',start:f(today),end:'',status:owner===null?'pendiente':'proceso',owners:isUser()?(me()?[me().id]:[]):owner?[owner]:[],created:f(today),est:'',urgent:false,notes:[]};
  const d=$('#dlg');
  d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">${id?'Tarea':'Nueva tarea'}</h2>
- <label>Tipo de tarea</label><select id="f-k" onchange="tipoChg()">${[['tarea','Tarea'],['libre','Sin tarea (desasignado)'],['baja','De baja'],['vacaciones','Vacaciones'],['reunion','Reunión']].filter(x=>x[0]!=='reunion'||!isUser()).map(([k,v])=>`<option value="${k}" ${k===(t.tipo||'tarea')?'selected':''}>${v}</option>`).join('')}</select>
+ <label>Tipo de tarea</label><select id="f-k" onchange="tipoChg()">${[['tarea','Tarea'],['libre','Sin tarea (desasignado)'],['baja','De baja'],['vacaciones','Vacaciones']].map(([k,v])=>`<option value="${k}" ${k===(t.tipo||'tarea')?'selected':''}>${v}</option>`).join('')}</select>
  <label>Título</label><input id="f-t" value="${esc(t.title)}">
  <div id="f-dw"><label>Descripción</label><textarea id="f-d" rows="2">${esc(t.desc)}</textarea></div>
  <div class="two"><div style="grid-column:1/-1"><label>Personas asignadas (sin marcar = backlog)</label><div class="ms" id="f-o"><div class="ms-f" onclick="msTog()"><span id="ms-c" class="ms-cs"></span><span class="ms-ar">▾</span></div><div class="ms-p" id="ms-p" hidden><input id="ms-q" placeholder="Buscar persona…" oninput="msDraw()"><div id="ms-l"></div></div></div></div>
  <div><label>Estado</label><select id="f-s">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k===t.status?'selected':''}>${v}</option>`).join('')}</select></div>
- <div><label id="f-il">Fecha inicio</label><input type="date" id="f-i" value="${t.start}" onchange="jorChg()"></div>
- <div id="f-ew"><label>Fecha fin</label><input type="date" id="f-e" value="${t.end}"></div>
- <div id="f-rw"><label>Hora</label><input type="time" id="f-h" value="${t.hora||'09:00'}"></div>
- <div id="f-rt"><label>Reunión</label><select id="f-r"><option value="interna"${t.reu!=='ministerio'?' selected':''}>Interna</option><option value="ministerio"${t.reu==='ministerio'?' selected':''}>Con el Ministerio</option></select></div>
+ <div><label>Fecha inicio</label><input type="date" id="f-i" value="${t.start}" onchange="jorChg()"></div>
+ <div><label>Fecha fin</label><input type="date" id="f-e" value="${t.end}"></div>
  <div id="f-xw"><label>Fin estimado</label><input type="date" id="f-x" value="${t.est||''}" onchange="jorChg()"><div class="sub" id="f-j"></div></div>
  <div id="f-cw"><label>Creada</label><input type="date" id="f-c" value="${t.created||f(today)}"></div></div>
  <label id="f-uw" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-u" style="width:auto" ${t.urgent?'checked':''}> Prioritaria / urgente</label>
@@ -428,9 +421,9 @@ function save(id){if(isUser()&&id){const t=tasks.find(x=>x.id===id),ok=n=>n.d===
   if(!(me()&&has(t,me().id))){$('#dlg').close();return}
   {const st=$('#f-s').value;if(st!==t.status&&ST[st]&&st!=='pendiente'){t.status=st;if(st==='finalizada'){if(!t.end)t.end=f(today)}else t.end=''}}t.notes=t.notes.filter(n=>!ok(n)).concat(nd.filter(n=>n.t.trim()&&ok(n)).map(n=>({d:n.d,t:n.t.trim()}))).sort((a,b)=>a.d.localeCompare(b.d));$('#dlg').close();commit();return}
  const title=$('#f-t').value.trim();if(!title)return;
- const os=ms.slice(),k=$('#f-k').value;if(k==='reunion'){if(!os.length||!$('#f-i').value||!$('#f-h').value){alert('Una reunión necesita al menos un asistente, fecha y hora.');return}}else if(k!=='tarea'&&os.length!==1){alert('Esta tarea debe tener exactamente una persona.');return}let st=$('#f-s').value,end=$('#f-e').value;
+ const os=ms.slice(),k=$('#f-k').value;if(k!=='tarea'&&os.length!==1){alert('Esta tarea debe tener exactamente una persona.');return}let st=$('#f-s').value,end=$('#f-e').value;
  if(st==='finalizada'&&!end)end=f(today);
- const base={title,desc:$('#f-d').value,owners:os,status:os.length?st:'pendiente',start:$('#f-i').value,end,urgent:k==='tarea'&&$('#f-u').checked,tipo:k,hora:k==='reunion'?$('#f-h').value:'',reu:k==='reunion'?$('#f-r').value:'',est:k==='tarea'?$('#f-x').value:'',created:$('#f-c').value||f(today)};
+ const base={title,desc:$('#f-d').value,owners:os,status:os.length?st:'pendiente',start:$('#f-i').value,end,urgent:k==='tarea'&&$('#f-u').checked,tipo:k,est:k==='tarea'?$('#f-x').value:'',created:$('#f-c').value||f(today)};
  if(isUser()){base.owners=[me().id];base.start=f(today);base.created=f(today);base.status='proceso';base.end=''}
  let t,prev=[];if(id){t=tasks.find(x=>x.id===id);prev=t.owners.slice();Object.assign(t,base)}else{t={id:nid(),notes:[],...base};tasks.push(t)}
  if(k==='tarea')t.owners.filter(o=>!prev.includes(o)).forEach(o=>closeLibre(o,t.start||f(today)));
@@ -453,7 +446,7 @@ const isUser=()=>!!linked()&&!ro()&&!isAdmin();
 const canLog=()=>!ro()&&isAdmin();
 const mainAdm=()=>auth&&auth.by!=null?auth.by:null;
 const isMain=()=>!linked()||(!ro()&&!!me()&&!!me().admin&&(mainAdm()===null||me().id===mainAdm()));
-const rdo=(t,id)=>ro()||(isUser()&&!!id&&(t.tipo==='reunion'||!(me()&&has(t,me().id))));
+const rdo=(t,id)=>ro()||(isUser()&&!!id&&!(me()&&has(t,me().id)));
 const canAdd=pid=>!ro()&&(isAdmin()||(isUser()&&!!me()&&me().id===pid));
 let sha=null,dirty=false,pushing=false,queued=false,timer=null;
 const hora=()=>new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
@@ -463,7 +456,7 @@ const linked=()=>repo()&&cfg.token;
 function setSt(c,m){const e=$('#sync');if(e){e.className='sync '+c;e.textContent=(ro()?'👁 Invitado · ':'')+m}}
 const snap=()=>JSON.stringify({version:1,updated:new Date().toISOString(),people,tasks,auth},null,1);
 function cache(){try{localStorage.setItem('dt_cache',JSON.stringify({people,tasks,auth}))}catch(e){}}
-function commit(){if(ro()){pull();return}autoClose();cache();draw();if(!linked())return;dirty=true;clearTimeout(timer);timer=setTimeout(push,800)}
+function commit(){if(ro()){pull();return}cache();draw();if(!linked())return;dirty=true;clearTimeout(timer);timer=setTimeout(push,800)}
 async function pull(){
  if(!linked())return setSt('','Local · sin GitHub');
  setSt('busy','Sincronizando…');
@@ -557,24 +550,6 @@ function daily(){
 document.addEventListener('keydown',e=>{if(view!=='daily'||!dl.run||$('#dlg').open||/INPUT|TEXTAREA|SELECT|BUTTON/.test((e.target||{}).tagName||''))return;
  if(e.key===' '||e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();dNext()}else if(e.key==='ArrowLeft')dPrev();else if(e.key==='Escape')dStop()});
 function setMain(id){const p=person(id);if(!isMain()||!auth)return;if(!confirm('¿Hacer a '+p.name+' administrador principal? Solo el principal ve el menú Daily y puede transferir este rol.'))return;auth.by=id;commit()}
-const reuC=t=>t.reu==='ministerio'?'#a8328f':'#2b6cb0';
-const calSvg=(c,d)=>`<svg class="cal" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="17.5" rx="3" fill="#fff" stroke="${c}" stroke-width="1.6"/><path d="M2.5 9.4h19V7a3 3 0 0 0-3-3h-13a3 3 0 0 0-3 3z" fill="${c}"/><rect x="7" y="2" width="2" height="4" rx="1" fill="${c}"/><rect x="15" y="2" width="2" height="4" rx="1" fill="${c}"/><text x="12" y="19" text-anchor="middle" font-size="9" font-weight="700" fill="${c}" font-family="system-ui,sans-serif">${d||''}</text></svg>`;
-function autoClose(){let n=0;const now=Date.now();tasks.forEach(t=>{if(t.tipo==='reunion'&&t.status!=='finalizada'&&t.start){const ms=new Date(t.start+'T'+(t.hora||'00:00')+':00').getTime()+12*3600e3;if(now>=ms){t.status='finalizada';t.end=f(new Date(ms));n++}}});return n}
-setInterval(()=>{if(autoClose())draw()},30000);
-function reuNav(){const h=tasks.filter(t=>t.tipo==='reunion'&&t.start===f(today)&&t.status!=='finalizada'),c=!h.length?'#9aa8b8':h.some(t=>t.reu==='ministerio')?'#a8328f':'#2b6cb0';
- return calSvg(c,today.getDate())+' Reuniones'+(h.length?`<span class="rbadge" style="background:${c}">${h.length}</span>`:'')}
-function reuCard(t,pid){const c=reuC(t),fin=t.status==='finalizada',min=t.reu==='ministerio',hoy=t.start===f(today);
- return `<div class="task reunion${min?' min':''}" onclick="openTask(${t.id})"><div class="tt"><b>${calSvg(c,t.start?+t.start.slice(8):'')} ${esc(t.title)}</b><span class="chip ${min?'s-reunion-min':'s-reunion'}">${fin?'Cerrada':(hoy?'Hoy':fmt(t.start))+' '+esc(t.hora||'')}</span></div>
- <div class="meta"><span>${min?'Con el Ministerio':'Interna'}</span><span>🕒 ${esc(t.hora||'')}</span></div>
- ${t.owners.length>1?`<div class="sub" style="margin-top:4px">👥 Con ${esc(t.owners.filter(o=>o!==pid).map(o=>(person(o)||{}).name||'?').join(', '))}</div>`:''}</div>`}
-function reu(){const td=f(today),R=tasks.filter(t=>t.tipo==='reunion').sort((a,b)=>(a.start+(a.hora||'')).localeCompare(b.start+(b.hora||'')));
- const row=t=>{const min=t.reu==='ministerio',fin=t.status==='finalizada';return `<tr><td>${calSvg(reuC(t),t.start?+t.start.slice(8):'')}</td><td><b>${esc(t.hora||'')}</b><div class='sub'>${fmt(t.start)}</div></td><td><span class='lnk' onclick='openTask(${t.id})'>${esc(t.title)}</span>${t.desc?`<div class='sub'>${esc(t.desc).slice(0,90)}</div>`:''}</td><td><span class='chip ${min?'s-reunion-min':'s-reunion'}'>${min?'Con el Ministerio':'Interna'}</span></td><td>${esc(names(t))}</td><td>${fin?"<span class='chip s-finalizada'>Cerrada</span>":"<span class='sub'>Abierta</span>"}</td></tr>`};
- const tbl=(L,e)=>`<div class='tw'><table style='min-width:760px'><tr><th></th><th>Hora</th><th>Reunión</th><th>Tipo</th><th>Asistentes</th><th></th></tr>${L.map(row).join('')||`<tr><td colspan='6' class='sub'>${e}</td></tr>`}</table></div>`;
- const hoy=R.filter(t=>t.start===td);
- return `<div class='top'><div><h1>Reuniones</h1><div class='sub'>${hoy.filter(t=>t.status!=='finalizada').length} abiertas hoy · se cierran solas 12 horas después de su hora</div></div>${isAdmin()&&!ro()?`<button class="btn" onclick="openTask(0,undefined,'reunion')">+ Nueva reunión</button>`:''}</div>
- <h3 style='color:var(--steel-d)'>Hoy</h3>${tbl(hoy,'No hay reuniones hoy.')}
- <h3 style='color:var(--steel-d)'>Próximas</h3>${tbl(R.filter(t=>t.start>td),'No hay reuniones programadas.')}
- <h3 style='color:var(--steel-d)'>Anteriores (últimas 20)</h3>${tbl(R.filter(t=>t.start<td).reverse().slice(0,20),'Todavía no hay reuniones anteriores.')}`}
 function dayCheck(){const n=new Date();n.setHours(0,0,0,0);if(n.getTime()===today.getTime())return;const old=f(today);today=n;if(sel===old){sel=f(today);wk=0}draw()}
 setInterval(dayCheck,30000);
 addEventListener('focus',dayCheck);

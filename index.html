@@ -122,7 +122,16 @@ nav{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;flex-direction:r
 nav button{flex-direction:column;gap:2px;font-size:11px;padding:6px 6px;align-items:center}.logo{display:none}
 main{padding:14px 12px 90px}
 }
-.s-error{background:#fde0e0;color:#b42318}.task.error{background:#fff1f1;border-color:#f0a3a3}.task.error:hover{border-color:#d44}
+.s-error{background:#fde0e0;color:#b42318}
+.errg{border:1px solid #f0a3a3;background:#fff1f1;border-radius:12px;margin-bottom:8px;overflow:hidden}
+.errh{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;padding:9px 10px;cursor:pointer}.errh:hover{background:#ffe8e8}
+.errt{font-weight:700;color:#b42318}
+.errc{font-size:12px;display:flex;gap:5px;flex-wrap:wrap}.errc span{border-radius:20px;padding:1px 8px;font-weight:600;background:#fde0e0;color:#b42318}.errc .ec-parada{background:#eceff2;color:#5c6b79}.errc .ec-pendiente{background:#fdf1da;color:#b7791f}
+.errm{font-size:12px;color:var(--mute);margin-left:auto;white-space:nowrap}
+.errl{max-height:260px;overflow:auto;border-top:1px solid #f0c4c4;background:rgba(255,255,255,.6)}
+.erl{display:flex;gap:6px;align-items:center;padding:5px 10px;font-size:12.5px;cursor:pointer;border-bottom:1px solid #f6dede}.erl:hover{background:#ffe8e8}
+.erl .ert{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.erl .ers{color:var(--mute);font-size:11.5px;white-space:nowrap}.erl .chip{flex:none}
+.errf{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;font-size:12px;border-top:1px solid #f0c4c4}.task.error{background:#fff1f1;border-color:#f0a3a3}.task.error:hover{border-color:#d44}
 textarea.mono{font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;font-size:12.5px;line-height:1.35}
 .rem{position:fixed;top:14px;right:14px;z-index:30;display:flex;flex-direction:column;gap:8px;max-width:360px}.rem[hidden]{display:none}
 .remc{background:var(--card);border:1px solid var(--line);border-left:4px solid #2b6cb0;border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px rgba(30,50,80,.22);font-size:14px}.remc.min{border-left-color:#a8328f}
@@ -197,6 +206,18 @@ function week(){
   h+=`<div class="day ${k===f(today)?'today':''} ${k===sel?'sel':''}" onclick="sel='${k}';draw()"><small>${d.toLocaleDateString('es-ES',{weekday:'short'})}</small><b>${d.getDate()}</b></div>`}
  return h+'<button class="arrow" onclick="wk++;draw()">›</button>';
 }
+const ERR_GROUP=3;
+let errOpen={};try{errOpen=JSON.parse(localStorage.getItem('dt_eo')||'{}')}catch(e){}
+function errTog(pid){errOpen[pid]=!errOpen[pid];try{localStorage.setItem('dt_eo',JSON.stringify(errOpen))}catch(e){}draw()}
+function errQuery(pid){q={txt:'',per:String(pid),est:'_open',tip:'error',pri:'',by:'start',d1:'',d2:'',late:false,ord:'created-desc'};stTab='cons';view='stats';draw()}
+function taskList(ts,pid){
+ const er=ts.filter(t=>t.tipo==='error'),rest=ts.filter(t=>t.tipo!=='error');
+ if(er.length<ERR_GROUP)return ts.map(t=>taskCard(t,pid)).join('');
+ const by={};er.forEach(t=>by[t.status]=(by[t.status]||0)+1);
+ const dmax=Math.max(...er.map(t=>days(t))),open=!!errOpen[pid];
+ const chips=Object.entries(by).map(([k,n])=>`<span class="ec-${k}">${n} ${k==='proceso'?'en proceso':k==='parada'?(n===1?'parada':'paradas'):ST[k].toLowerCase()}</span>`).join('');
+ const lines=er.slice().sort((a,b)=>days(b)-days(a)).map(t=>`<div class="erl" onclick="openTask(${t.id})" title="${esc(t.title)}"><span class="chip s-${t.status}">${ST[t.status]}</span>${t.urgent?PI:''}<span class="ert">${esc(t.title)}</span><span class="ers">${t.start?dur(t):''}</span></div>`).join('');
+ return rest.map(t=>taskCard(t,pid)).join('')+`<div class="errg"><div class="errh" onclick="errTog(${pid})"><span class="errt">🐞 ${er.length} errores</span><span class="errc">${chips}</span><span class="errm">${dmax?'más antiguo '+dmax+(dmax===1?' día':' días'):''} ${open?'▴':'▾'}</span></div>${open?`<div class="errl">${lines}</div><div class="errf"><span class="lnk" onclick="errQuery(${pid})">Ver en Consultas ›</span><span class="sub">${er.length} abiertos</span></div>`:''}</div>`}
 function taskCard(t,pid){if(t.tipo==='reunion')return reuCard(t,pid);
  const n=t.notes[t.notes.length-1];
  return `<div class="task${t.tipo==='error'?' error':isT(t)?'':' '+t.tipo}" onclick="openTask(${t.id})">
@@ -208,7 +229,7 @@ function diario(){
  const urg=tasks.filter(t=>t.urgent&&t.status!=='finalizada');
  const bl=tasks.filter(t=>!t.owners.length&&t.status==='pendiente');blPg=Math.max(0,Math.min(blPg,Math.floor((bl.length-1)/20)));
  const lbl=new Date(sel).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});
- return `<div class="top"><div><h1>Daily · ${lbl}</h1><div class="sub">${sel===f(today)?'Hoy · ':''}${people.length} personas · ${tasks.filter(t=>t.status==='proceso'&&isT(t)).length} tareas en proceso</div></div>
+ return `<div class="top"><div><h1>Daily · ${lbl}</h1><div class="sub">${sel===f(today)?'Hoy · ':''}${people.length} personas · ${tasks.filter(t=>t.status==='proceso'&&isT(t)).length} tareas en proceso${tasks.filter(t=>t.tipo==='error'&&t.status==='proceso').length?' (🐞 '+tasks.filter(t=>t.tipo==='error'&&t.status==='proceso').length+' errores)':''}</div></div>
  <button class="btn" onclick="openTask(0)">+ Nueva tarea</button></div>
  <div class="week">${week()}</div>
  <div class="layout"><div>
@@ -217,7 +238,7 @@ function diario(){
   const ts=tasks.filter(t=>has(t,p.id)&&t.status!=='finalizada');
   return `<div class="person" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="drop(event,${p.id})">
   <div class="ph"><div class="av">${esc(ini(p.name))}</div><div><div class="n">${esc(p.name)}</div><div class="r">${esc(p.role)}</div></div>${canAdd(p.id)?`<button class="btn ghost sm" onclick="openTask(0,${p.id})">+ Añadir</button>`:''}</div>
-  ${ts.length?ts.map(t=>taskCard(t,p.id)).join(''):`<div class="free"><span>Sin tarea asignada</span><span style="display:flex;gap:6px">${canAdd(p.id)?`<button class="btn ghost sm" onclick="libre(${p.id})">Registrar</button>`:''}<button class="btn sm" onclick="pick(${p.id})">Del backlog</button></span></div>`}</div>`}).join('')}</div></div>
+  ${ts.length?taskList(ts,p.id):`<div class="free"><span>Sin tarea asignada</span><span style="display:flex;gap:6px">${canAdd(p.id)?`<button class="btn ghost sm" onclick="libre(${p.id})">Registrar</button>`:''}<button class="btn sm" onclick="pick(${p.id})">Del backlog</button></span></div>`}</div>`}).join('')}</div></div>
  <aside class="side"><h3>Backlog (${bl.length})</h3><div class="sub">Arrastra una tarea sobre una persona</div>
  ${bl.slice(blPg*20,blPg*20+20).map(t=>`<div class="bl" draggable="${!ro()&&(!isUser()||t.tipo==='error')}" ondragstart="event.dataTransfer.setData('t',${t.id})">${t.tipo==='error'?'🐞 ':''}${t.urgent?PI:''}${esc(t.title)}</div>`).join('')||'<div class="tip">Backlog vacío</div>'}${bl.length>20?`<div class="pg"><button class="btn ghost sm" ${blPg<=0?'disabled':''} onclick="blPage(-1)">‹</button><span>${blPg*20+1}–${Math.min(bl.length,blPg*20+20)} de ${bl.length}</span><button class="btn ghost sm" ${(blPg+1)*20>=bl.length?'disabled':''} onclick="blPage(1)">›</button></div>`:''}
  </aside></div>`;
@@ -270,8 +291,8 @@ function statsAct(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.19.0',BUILD='27 oct 2026';
-const LOGS=[['0.19.0','Unión de versiones: tipo Error (🐞) con importación desde Excel, asignación y arrastre por cualquier usuario, backlog de Inicio paginado de 20 en 20, búsqueda en Backlog, avisos de reuniones y lectura robusta de ficheros grandes'],['0.18.0','Búsqueda en el Backlog y aviso de las reuniones a sus asistentes con la app abierta'],['0.17.1','Corrección: la app se quedaba en blanco al arrancar'],['0.17.0','Tipo Reunión (interna o con el Ministerio) con hora, cierre automático y menú Reuniones'],['0.16.0','Estadísticas con dos pestañas: Actual y Consultas del histórico de tareas'],['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.19.1',BUILD='27 oct 2026';
+const LOGS=[['0.19.1','Los errores de cada persona se agrupan en un resumen (número en proceso, paradas, el más antiguo) que se despliega en una lista compacta'],['0.19.0','Unión de versiones: tipo Error (🐞) con importación desde Excel, asignación y arrastre por cualquier usuario, backlog de Inicio paginado de 20 en 20, búsqueda en Backlog, avisos de reuniones y lectura robusta de ficheros grandes'],['0.18.0','Búsqueda en el Backlog y aviso de las reuniones a sus asistentes con la app abierta'],['0.17.1','Corrección: la app se quedaba en blanco al arrancar'],['0.17.0','Tipo Reunión (interna o con el Ministerio) con hora, cierre automático y menú Reuniones'],['0.16.0','Estadísticas con dos pestañas: Actual y Consultas del histórico de tareas'],['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){if(!canLog())return;const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones',reunion:'Reunión'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea'&&k!=='error',ti=$('#f-t');
@@ -558,7 +579,7 @@ function daily(){
   return `<div class="dl"><div class="dl-name">${esc(p.name)}</div><div class="dl-n">${dl.i+1} de ${N}</div>
  <button class="btn big" onclick="dNext()">Siguiente ▸</button>
  <div style="margin-top:12px"><button class="btn ghost sm" onclick="dPrev()"${dl.i?'':' disabled'}>◂ Anterior</button> <button class="btn ghost sm" onclick="dStop()">Salir</button></div>
- ${dl.show?`<div class="dl-t">${ts.length?ts.map(t=>taskCard(t,p.id)).join(''):'<div class="free"><span>Sin tarea asignada</span></div>'}</div>`:''}
+ ${dl.show?`<div class="dl-t">${ts.length?taskList(ts,p.id):'<div class="free"><span>Sin tarea asignada</span></div>'}</div>`:''}
  <label class="sub" style="display:block;margin-top:14px"><input type="checkbox" style="width:auto" ${dl.show?'checked':''} onchange="dShow(this.checked)"> Mostrar sus tareas</label></div>`}
  const canEdit=isMain()&&!ro(),n=people.filter(p=>!p.noDaily&&!away(p)).length;
  return `<div class="top"><div><h1>🎲 Daily</h1><div class="sub">Orden aleatorio de intervención · ${n} de ${people.length} participan</div></div></div>

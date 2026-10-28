@@ -137,9 +137,20 @@ textarea.mono{font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;f
 .remc{background:var(--card);border:1px solid var(--line);border-left:4px solid #2b6cb0;border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px rgba(30,50,80,.22);font-size:14px}.remc.min{border-left-color:#a8328f}
 @media(max-width:700px){.rem{left:12px;right:12px;max-width:none;top:calc(10px + env(safe-area-inset-top,0px))}}
 .pg{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:8px;font-size:12px;color:var(--mute)}.pg button:disabled{opacity:.35;cursor:default}
+#boot{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
+#boot.off{opacity:0;pointer-events:none}
+#boot img{width:72px;height:72px;border-radius:18px;box-shadow:0 6px 20px rgba(30,50,80,.18)}
+#boot b{font-size:22px;color:var(--steel-d);letter-spacing:.2px}#boot b span{font-weight:400;color:var(--steel)}
+#boot .bar{width:min(240px,60vw);height:5px;border-radius:5px;background:var(--steel-l);overflow:hidden}
+#boot .bar i{display:block;height:100%;width:40%;border-radius:5px;background:var(--steel);animation:bootb 1.1s ease-in-out infinite}
+#boot p{margin:0;font-size:13px;color:var(--mute);min-height:18px;text-align:center;padding:0 24px}
+@keyframes bootb{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
+@media(prefers-reduced-motion:reduce){#boot .bar i{animation:none;width:100%;opacity:.5}}
 </style>
 </head>
 <body>
+<div id="boot" role="status" aria-live="polite"><img src="icon.svg" alt=""><b>Daily<span>Tracker</span></b><div class="bar"><i></i></div><p>Abriendo la app…</p></div>
+<script>setTimeout(function(){var b=document.getElementById('boot');if(b&&!window.__up){var p=b.querySelector('p');if(p)p.textContent='La app está tardando demasiado. Recarga la página; si sigue igual, revisa la conexión.'}},30000)</script>
 <div class="app">
 <nav>
  <div class="logo">Daily<span>Tracker</span></div>
@@ -291,8 +302,8 @@ function statsAct(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes</h3>
  ${bl.map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(t.desc)||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}`;
 }
-const VER='0.19.1',BUILD='27 oct 2026';
-const LOGS=[['0.19.1','Los errores de cada persona se agrupan en un resumen (número en proceso, paradas, el más antiguo) que se despliega en una lista compacta'],['0.19.0','Unión de versiones: tipo Error (🐞) con importación desde Excel, asignación y arrastre por cualquier usuario, backlog de Inicio paginado de 20 en 20, búsqueda en Backlog, avisos de reuniones y lectura robusta de ficheros grandes'],['0.18.0','Búsqueda en el Backlog y aviso de las reuniones a sus asistentes con la app abierta'],['0.17.1','Corrección: la app se quedaba en blanco al arrancar'],['0.17.0','Tipo Reunión (interna o con el Ministerio) con hora, cierre automático y menú Reuniones'],['0.16.0','Estadísticas con dos pestañas: Actual y Consultas del histórico de tareas'],['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.20.0',BUILD='28 oct 2026';
+const LOGS=[['0.20.0','Pantalla de carga; los datos se guardan comprimidos (de ~4,8 MB a ~0,2 MB); caché local en IndexedDB y sondeo sin descarga cuando no hay cambios'],['0.19.1','Los errores de cada persona se agrupan en un resumen (número en proceso, paradas, el más antiguo) que se despliega en una lista compacta'],['0.19.0','Unión de versiones: tipo Error (🐞) con importación desde Excel, asignación y arrastre por cualquier usuario, backlog de Inicio paginado de 20 en 20, búsqueda en Backlog, avisos de reuniones y lectura robusta de ficheros grandes'],['0.18.0','Búsqueda en el Backlog y aviso de las reuniones a sus asistentes con la app abierta'],['0.17.1','Corrección: la app se quedaba en blanco al arrancar'],['0.17.0','Tipo Reunión (interna o con el Ministerio) con hora, cierre automático y menú Reuniones'],['0.16.0','Estadísticas con dos pestañas: Actual y Consultas del histórico de tareas'],['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){if(!canLog())return;const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones',reunion:'Reunión'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea'&&k!=='error',ti=$('#f-t');
@@ -482,18 +493,44 @@ const apiUrl=()=>`https://api.github.com/repos/${repo()}/contents/${cfg.path||'d
 const H=()=>({Authorization:'Bearer '+cfg.token,Accept:'application/vnd.github+json'});
 const linked=()=>repo()&&cfg.token;
 function setSt(c,m){const e=$('#sync');if(e){e.className='sync '+c;e.textContent=(ro()?'👁 Invitado · ':'')+m}}
-const snap=()=>JSON.stringify({version:1,updated:new Date().toISOString(),people,tasks,auth},null,1);
-function cache(){try{localStorage.setItem('dt_cache',JSON.stringify({people,tasks,auth}))}catch(e){try{localStorage.removeItem('dt_cache')}catch(x){}}}
+/* ---- Compresión (gzip): el data.json real baja de ~4,8 MB a ~0,2 MB. Poner ZIP=false para guardar JSON legible ---- */
+const ZIP=true,CAN_GZ=typeof CompressionStream!=='undefined'&&typeof DecompressionStream!=='undefined';
+const bin2b64=u=>{let s='';for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)};
+const b642bin=t=>Uint8Array.from(atob(t.replace(/\n/g,'')),c=>c.charCodeAt(0));
+const pipe=async(data,T)=>new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(T)).arrayBuffer());
+const gzip=s=>pipe(s,new CompressionStream('gzip'));
+async function bin2text(u){
+ if(u.length>2&&u[0]===0x1f&&u[1]===0x8b){
+  if(!CAN_GZ)throw new Error('este navegador no puede leer datos comprimidos: actualízalo');
+  return new TextDecoder().decode(await pipe(u,new DecompressionStream('gzip')))}
+ return new TextDecoder().decode(u)}
+const snap=pretty=>JSON.stringify({version:1,updated:new Date().toISOString(),people,tasks,auth},null,pretty?1:0);
+async function snapBytes(){
+ if(ZIP&&CAN_GZ){try{return await gzip(snap(false))}catch(e){}}
+ return new TextEncoder().encode(snap(true))}
+/* ---- Caché local en IndexedDB (localStorage se queda en ~5 MB y con muchos errores ya no cabía) ---- */
+let idbP=null;
+const idb=()=>idbP||(idbP=new Promise((ok,ko)=>{try{const r=indexedDB.open('dt',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)}catch(e){ko(e)}}));
+const idbGet=async k=>{const d=await idb();return new Promise((ok,ko)=>{const r=d.transaction('k').objectStore('k').get(k);r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)})};
+const idbSet=async(k,v)=>{const d=await idb();return new Promise((ok,ko)=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,k);t.oncomplete=()=>ok();t.onerror=()=>ko(t.error)})};
+let cacheT=null;
+function cache(){clearTimeout(cacheT);cacheT=setTimeout(async()=>{
+ try{await idbSet('cache',{people,tasks,auth});try{localStorage.removeItem('dt_cache')}catch(e){}}
+ catch(e){try{localStorage.setItem('dt_cache',JSON.stringify({people,tasks,auth}))}catch(x){}}},250)}
+function bootMsg(m){const p=$('#boot p');if(p)p.textContent=m}
+function bootHide(){window.__up=1;const b=$('#boot');if(b){b.classList.add('off');setTimeout(()=>{const x=$('#boot');if(x)x.remove()},400)}}
 function commit(){if(ro()){pull();return}autoClose();cache();draw();if(!linked())return;dirty=true;clearTimeout(timer);timer=setTimeout(push,800)}
+let etag=null;
 async function readFile(url){
  const q=url+'?t='+Date.now()+(cfg.branch?'&ref='+cfg.branch:'');
  const r=await fetch(q,{headers:H(),cache:'no-store'});
  if(r.status===404)return{sha:null,text:null};
  if(!r.ok)throw new Error('GitHub respondió '+r.status);
  let j;try{j=await r.json()}catch(e){throw new Error('GitHub devolvió una respuesta vacía')}
- let text=j.content?decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))):'';
- if(!text&&j.size>0){const r2=await fetch(q,{headers:{...H(),Accept:'application/vnd.github.raw+json'},cache:'no-store'});if(!r2.ok)throw new Error('GitHub respondió '+r2.status);text=await r2.text()}
- return{sha:j.sha,text}}
+ etag=(r.headers&&r.headers.get&&r.headers.get('ETag'))||null;
+ let u=j.content?b642bin(j.content):new Uint8Array(0);
+ if(!u.length&&j.size>0){const r2=await fetch(q,{headers:{...H(),Accept:'application/vnd.github.raw+json'},cache:'no-store'});if(!r2.ok)throw new Error('GitHub respondió '+r2.status);u=new Uint8Array(await r2.arrayBuffer())}
+ return{sha:j.sha,text:await bin2text(u)}}
 async function pull(){
  if(!linked())return setSt('','Local · sin GitHub');
  setSt('busy','Sincronizando…');
@@ -508,9 +545,10 @@ async function pull(){
 /* Sondeo ligero: solo descarga el fichero entero (unos MB) cuando cambia el sha */
 async function check(){
  if(!linked()||dirty||pushing)return;
- try{const r=await fetch(apiUrl()+'?t='+Date.now()+(cfg.branch?'&ref='+cfg.branch:''),{headers:H(),cache:'no-store'});
+ try{const r=await fetch(apiUrl()+'?t='+Date.now()+(cfg.branch?'&ref='+cfg.branch:''),{headers:etag?{...H(),'If-None-Match':etag}:H(),cache:'no-store'});
+  if(r.status===304){pend=null;showUpd(false);return}
   if(!r.ok)return;const m=await r.json();
-  if(m.sha===sha){pend=null;showUpd(false);return}
+  if(m.sha===sha){const e=r.headers.get('ETag');if(e)etag=e;pend=null;showUpd(false);return}
   if(m.sha===dis)return;
   const x=await readFile(apiUrl());
   if(x.text===null||!x.text.trim())return;
@@ -524,12 +562,12 @@ function dismissUpd(){if(pend)dis=pend.sha;pend=null;showUpd(false)}
 async function push(){
  if(!linked()||ro())return;if(pushing){queued=true;return}
  pushing=true;setSt('busy','Guardando…');
- try{const b={message:'Daily Tracker '+new Date().toISOString(),content:btoa(unescape(encodeURIComponent(snap())))};
+ try{const b={message:'Daily Tracker '+new Date().toISOString(),content:bin2b64(await snapBytes())};
   if(sha)b.sha=sha;if(cfg.branch)b.branch=cfg.branch;
   const r=await fetch(apiUrl(),{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify(b)});
   if(r.status===409||r.status===422){dirty=false;pushing=false;setSt('err','Conflicto con otro dispositivo: recargando, repite el cambio');return pull()}
   if(!r.ok)throw new Error(r.status);
-  sha=(await r.json()).content.sha;dirty=false;setSt('ok','☁ Guardado '+hora())}
+  sha=(await r.json()).content.sha;etag=null;dirty=false;setSt('ok','☁ Guardado '+hora())}
  catch(e){setSt('err',e.message==='403'?'Sin permiso de escritura: token de solo lectura o límite de GitHub':'No se pudo guardar ('+e.message+')')}
  pushing=false;if(queued){queued=false;push()}}
 function openCfg(){const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Sincronizar con GitHub</h2>
@@ -541,7 +579,6 @@ ${linked()&&me()&&me().admin?`<div class="two"><div><label>Fichero</label><input
 <div class="acts"><button class="btn ghost" style="margin-right:auto" onclick="saveCfg(1)">Desconectar</button><button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="saveCfg()">Guardar y sincronizar</button></div>`;d.showModal()}
 function saveCfg(x){cfg=x?{}:{repo:$('#c-r')?$('#c-r').value.trim():cfg.repo,token:$('#c-t').value.trim(),path:($('#c-p')?$('#c-p').value.trim():cfg.path)||'data.json',branch:$('#c-b')?$('#c-b').value.trim():(cfg.branch||''),role:$('#c-ro')?$('#c-ro').value:cfg.role,me:cfg.me};localStorage.setItem('dt_cfg',JSON.stringify(cfg));sha=null;$('#dlg').close();draw();pull()}
 
-try{const c=JSON.parse(localStorage.getItem('dt_cache')||'null');if(c){people=c.people||[];tasks=c.tasks||[];auth=c.auth||null;norm()}}catch(e){}
 async function loadAppCfg(){try{const r=await fetch('config.json',{cache:'no-cache'});if(r.ok){const c=await r.json();appRepo=(c.repo||'').trim()}}catch(e){}}
 
 setInterval(()=>{if(!dirty&&!pushing&&!$('#dlg').open)check()},60000);
@@ -725,7 +762,20 @@ function remOpen(id){openTask(id)}
 function remPerm(){Notification.requestPermission().then(()=>remCheck())}
 setInterval(remCheck,20000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)remCheck()});
 /* Arranque: va al final para que todo lo anterior ya esté definido */
-draw();loadAppCfg().then(()=>{draw();return pull()}).then(()=>remCheck());
+(async()=>{
+ let c=null;try{c=await idbGet('cache')}catch(e){}
+ if(!c){try{c=JSON.parse(localStorage.getItem('dt_cache')||'null')}catch(e){}}
+ if(c){try{people=c.people||[];tasks=c.tasks||[];auth=c.auth||null;norm()}catch(e){}}
+ try{draw()}catch(e){}
+ if(c)bootHide();                       /* hay datos guardados: se muestran ya y se actualizan en segundo plano */
+ bootMsg('Cargando configuración…');
+ try{await loadAppCfg();draw()}catch(e){}
+ bootMsg(linked()?'Descargando datos…':'Preparando…');
+ const slow=setTimeout(()=>bootMsg('Descargando datos… tarda más de lo normal'),8000);
+ try{await pull()}catch(e){}
+ clearTimeout(slow);bootMsg('Casi listo…');
+ try{draw()}catch(e){}
+ bootHide();remCheck()})();
 </script>
 </body>
 </html>

@@ -146,6 +146,8 @@ textarea.mono{font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;f
 #boot p{margin:0;font-size:13px;color:var(--mute);min-height:18px;text-align:center;padding:0 24px}
 @keyframes bootb{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
 @media(prefers-reduced-motion:reduce){#boot .bar i{animation:none;width:100%;opacity:.5}}
+.bx-st{font-size:12px;padding:4px 10px;border-radius:20px;background:var(--steel-l);color:var(--steel-d)}.bx-st:empty{display:none}.bx-st.err{background:var(--urgb);color:var(--urg)}
+.bx-sel{width:auto;max-width:160px;padding:4px 6px;font-size:13px}
 </style>
 </head>
 <body>
@@ -159,6 +161,7 @@ textarea.mono{font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;f
  <button data-v="prio"><svg class="pi" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> Prioritarias</button>
  <button data-v="backlog">🗂️ Backlog</button>
  <button data-v="reu">📅 Reuniones</button>
+ <button data-v="errores">🛠️ Errores build</button>
  <button data-v="stats">📊 Estadísticas</button>
  <button data-v="equipo">⚙️ Equipo</button>
  <div id="sync" class="sync" onclick="openCfg()">Local</div>
@@ -302,8 +305,8 @@ function statsAct(){
  <h3 style='color:var(--steel-d)'>Tareas pendientes (${bl.length})</h3>
  ${bl.slice(0,stLim.bl).map(t=>`<div class='row' style='cursor:pointer' onclick='openTask(${t.id})'><div class='grow'><b>${t.tipo==='error'?'🐞 ':''}${t.urgent?PI:''}${esc(t.title)}</b><div class='sub'>${esc(dshort(t))||'Sin descripción'}</div></div><span class='chip s-pendiente'>Sin asignar</span></div>`).join('')||"<div class='tip'>No hay tareas pendientes.</div>"}${stFoot('bl',Math.min(bl.length,stLim.bl),bl.length)}`;
 }
-const VER='0.20.1',BUILD='28 oct 2026';
-const LOGS=[['0.20.1','Estadísticas con límites: 50 filas por bloque con «Mostrar 50 más», máximo 5 tareas por persona en Situación actual, búsqueda con retardo e índice en caché'],['0.20.0','Pantalla de carga; los datos se guardan comprimidos (de ~4,8 MB a ~0,2 MB); caché local en IndexedDB y sondeo sin descarga cuando no hay cambios'],['0.19.1','Los errores de cada persona se agrupan en un resumen (número en proceso, paradas, el más antiguo) que se despliega en una lista compacta'],['0.19.0','Unión de versiones: tipo Error (🐞) con importación desde Excel, asignación y arrastre por cualquier usuario, backlog de Inicio paginado de 20 en 20, búsqueda en Backlog, avisos de reuniones y lectura robusta de ficheros grandes'],['0.18.0','Búsqueda en el Backlog y aviso de las reuniones a sus asistentes con la app abierta'],['0.17.1','Corrección: la app se quedaba en blanco al arrancar'],['0.17.0','Tipo Reunión (interna o con el Ministerio) con hora, cierre automático y menú Reuniones'],['0.16.0','Estadísticas con dos pestañas: Actual y Consultas del histórico de tareas'],['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
+const VER='0.21.0',BUILD='30 oct 2026';
+const LOGS=[['0.21.0','Errores de build (los importados del Excel) en un menú y un fichero propios (errores.json), independientes del Backlog y editables por cualquier persona; las tareas de tipo Error siguen como antes'],['0.20.1','Estadísticas con límites: 50 filas por bloque con «Mostrar 50 más», máximo 5 tareas por persona en Situación actual, búsqueda con retardo e índice en caché'],['0.20.0','Pantalla de carga; los datos se guardan comprimidos (de ~4,8 MB a ~0,2 MB); caché local en IndexedDB y sondeo sin descarga cuando no hay cambios'],['0.19.1','Los errores de cada persona se agrupan en un resumen (número en proceso, paradas, el más antiguo) que se despliega en una lista compacta'],['0.19.0','Unión de versiones: tipo Error (🐞) con importación desde Excel, asignación y arrastre por cualquier usuario, backlog de Inicio paginado de 20 en 20, búsqueda en Backlog, avisos de reuniones y lectura robusta de ficheros grandes'],['0.18.0','Búsqueda en el Backlog y aviso de las reuniones a sus asistentes con la app abierta'],['0.17.1','Corrección: la app se quedaba en blanco al arrancar'],['0.17.0','Tipo Reunión (interna o con el Ministerio) con hora, cierre automático y menú Reuniones'],['0.16.0','Estadísticas con dos pestañas: Actual y Consultas del histórico de tareas'],['0.15.2','Solo el administrador principal puede crear o quitar administradores'],['0.15.1','El menú Daily solo lo ve el administrador principal, quien creó la contraseña de administrador'],['0.15.0','Daily con sorteo aleatorio de intervención y indicador de quién está conectado'],['0.14.0','Se usa «tarea» en todos los textos y la app se actualiza sola al cambiar el día'],['0.13.0','El repositorio de datos viene en config.json; el campo solo lo ve un administrador'],['0.12.3','El registro de novedades solo lo ve un administrador'],['0.12.2','Los campos Fichero y Rama de Configurar solo los ve un administrador'],['0.12.1','El selector de rol de Configurar solo lo ve un administrador'],['0.12.0','Aviso discreto cuando alguien cambia datos, con botón para actualizar'],['0.11.0','Contraseña personal al elegir usuario, con restablecimiento por un administrador'],['0.10.2','Las tareas de otras personas se abren en solo lectura, sin botón Guardar'],['0.10.1','Los usuarios pueden finalizar, pausar y reabrir sus propias tareas'],['0.10.0','Usuarios por persona, administradores con contraseña y permisos de edición'],['0.9.1','El selector de personas usa el mismo estilo que el resto de campos'],['0.9.0','Selector múltiple con etiquetas, tiempo estimado en jornadas e icono nuevo de prioritarias'],['0.8.0','Menú Prioritarias, tareas compartidas, fin estimado, editar personas y aviso al borrar'],['0.7.0','Modo invitado (solo lectura) según el token'],['0.6.0','Tarea de vacaciones'],['0.5.0','Tipos de tarea (normal, sin tarea, baja) y pie con versión'],['0.4.0','Tarea «sin tarea» y estadísticas de tiempo desasignado'],['0.3.0','Seguimiento diario en forma de grid'],['0.2.0','Sincronización con GitHub, PWA instalable'],['0.1.0','Diario, backlog, equipo y estadísticas']];
 function openLog(){if(!canLog())return;const d=$('#dlg');d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">Daily Tracker v${VER} beta</h2><div class="tip">Compilación ${BUILD}</div><div class="notes" style="max-height:none;margin-top:10px">${LOGS.map(l=>`<div><i>${l[0]}</i> · ${l[1]}</div>`).join('')}</div><div class="acts"><button class="btn" onclick="$('#dlg').close()">Cerrar</button></div>`;d.showModal()}
 const TD={libre:'Sin tarea asignada',baja:'De baja',vacaciones:'Vacaciones',reunion:'Reunión'};
 function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea'&&k!=='error',ti=$('#f-t');
@@ -312,7 +315,7 @@ function tipoChg(init){const k=$('#f-k').value,sp=k!=='tarea'&&k!=='error',ti=$(
  const sv=$('#f-s').value,fs=$('#f-s');
  fs.innerHTML=(sp?[['proceso','En curso'],['finalizada',k==='baja'?'Alta (finalizada)':k==='vacaciones'?'Vuelta (finalizada)':k==='reunion'?'Cerrada (finalizada)':'Cerrado (finalizada)']]:Object.entries(ST)).map(([a,b])=>`<option value="${a}">${b}</option>`).join('');
  fs.value=[...fs.options].some(o=>o.value===sv)?sv:'proceso'}
-function norm(){tasks.forEach(t=>{if(!t.tipo)t.tipo=t.libre?'libre':'tarea';delete t.libre;if(!t.owners)t.owners=t.owner!=null?[t.owner]:[];delete t.owner;if(!t.created)t.created=t.start||(t.notes&&t.notes[0]&&t.notes[0].d)||f(today);if(t.est===undefined)t.est=''});autoClose()}
+function norm(){tasks.forEach(t=>{if(!t.tipo)t.tipo=t.libre?'libre':'tarea';delete t.libre;if(!t.owners)t.owners=t.owner!=null?[t.owner]:[];delete t.owner;if(!t.created)t.created=t.start||(t.notes&&t.notes[0]&&t.notes[0].d)||f(today);if(t.est===undefined)t.est=''});const le=tasks.filter(t=>t.tipo==='error'&&t.xid);if(le.length){tasks=tasks.filter(t=>!(t.tipo==='error'&&t.xid));if(!ro())bxLegacy.push(...le)}autoClose()}
 const ST_PAGE=50,ACT_MAX=5;
 let stLim={all:ST_PAGE,bl:ST_PAGE,q:ST_PAGE};
 function stMore(k){stLim[k]+=ST_PAGE;if(k==='q'){qDraw();return}const y=scrollY,m=$('#main'),ys=m?m.scrollTop:0;draw();scrollTo(0,y);if(m)m.scrollTop=ys}
@@ -366,8 +369,8 @@ function qCsvText(){const c=x=>{let v=String(x==null?'':x);if(/^[=+\-@]/.test(v)
  return '\ufeff'+[head,...qRows().map(t=>[t.title,tl[t.tipo||'tarea'],names(t),ST[t.status],t.urgent?'Sí':'No',t.created||'',t.start||'',t.end||'',t.est||'',t.start&&t.tipo!=='reunion'?days(t):'',jor(t.start,t.est)||'',t.hora||'',t.reu?(t.reu==='ministerio'?'Con el Ministerio':'Interna'):'',t.desc||'',t.notes.map(n=>n.d+': '+n.t).join(' | ')])].map(r=>r.map(c).join(';')).join('\r\n')}
 function qCsv(){const b=new Blob([qCsvText()],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tareas-'+f(today)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function stats(){return `<div class='top'><div><h1>Estadísticas</h1><div class='sub'>${stTab==='cons'?'Consulta del histórico de tareas':'Tiempo de desarrollo, tiempo sin tarea y bajas por persona'}</div></div></div><div class="tabs"><button class="${stTab==='act'?'on':''}" onclick="stTab='act';stLim.all=stLim.bl=ST_PAGE;draw()">Actual</button><button class="${stTab==='cons'?'on':''}" onclick="stTab='cons';draw()">Consultas</button></div>`+(stTab==='cons'?cons():statsAct())}
-function draw(){document.body.classList.toggle('ro',ro());document.body.classList.toggle('ur',isUser());const rb=$('[data-v="reu"]');if(rb)rb.innerHTML=reuNav();const dn=$('[data-v="daily"]');if(dn)dn.style.display=isMain()?'':'none';if(view==='daily'&&!isMain())view='diario';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));$('#main').innerHTML={diario,daily,prio,backlog,reu,equipo,stats}[view]()+`<footer class="foot${canLog()?' lg':''}"${canLog()?' onclick="openLog()"':''}>Daily Tracker · v${VER} beta · ${BUILD}${ro()?' · 👁 modo invitado':''}${linked()&&!ro()&&me()?' · 👤 '+esc(me().name)+(me().admin?' (admin)':''):''}${canLog()?' · ver novedades':''}</footer>`}
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;draw();if(view==='equipo')loadPres()});
+function draw(){document.body.classList.toggle('ro',ro());document.body.classList.toggle('ur',isUser());const rb=$('[data-v="reu"]');if(rb)rb.innerHTML=reuNav();const dn=$('[data-v="daily"]');if(dn)dn.style.display=isMain()?'':'none';if(view==='daily'&&!isMain())view='diario';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));$('#main').innerHTML={diario,daily,prio,backlog,reu,equipo,stats,errores:bxScreen}[view]()+`<footer class="foot${canLog()?' lg':''}"${canLog()?' onclick="openLog()"':''}>Daily Tracker · v${VER} beta · ${BUILD}${ro()?' · 👁 modo invitado':''}${linked()&&!ro()&&me()?' · 👤 '+esc(me().name)+(me().admin?' (admin)':''):''}${canLog()?' · ver novedades':''}</footer>`}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;draw();if(view==='equipo')loadPres();if(view==='errores')bxCheck()});
 
 function drop(e,pid){e.preventDefault();if(ro())return;const id=+e.dataTransfer.getData('t');if(isUser()){const t=tasks.find(x=>x.id===id);if(t&&t.tipo==='error'&&(!me()||me().id===pid))selfAssign(id);return}assign(id,pid)}
 function assign(id,pid){if(!pid)return;const t=tasks.find(x=>x.id===id);closeLibre(+pid,f(today));if(!has(t,+pid))t.owners.push(+pid);if(t.status==='pendiente'||!t.start){t.status='proceso';t.start=f(today)}t.notes.push({d:f(today),t:'Asignada a '+person(+pid).name});commit()}
@@ -412,7 +415,7 @@ function openTask(id,owner,tipo0){if(pend)applyPending();if(id&&!tasks.find(x=>x
  <div class="tw" style="margin:0;max-height:230px;overflow:auto"><table style="min-width:0"><thead><tr><th>Fecha</th><th>Comentario</th><th></th></tr></thead><tbody id="nt"></tbody></table></div>
  <button class="btn ghost sm" style="margin-top:8px" onclick="ntAdd()">+ Añadir línea</button>
  <div class="acts">${id?`<button class="btn ghost" style="margin-right:auto" onclick="del(${id})">Eliminar</button>`:''}<button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" onclick="save(${id})">Guardar</button></div>`;
- nd=t.notes.map(n=>({...n}));if(!rdo(t,id))nd.push({d:isUser()?f(today):sel,t:''});ntDraw();ms=t.owners.slice();msDraw();d.showModal();tipoChg(1);jorChg();if(rdo(t,id))roModal(d);else if(isUser())limModal(d,!id,!!id);
+ nd=t.notes.map(n=>({...n}));if(!rdo(t,id))nd.push({d:isUser()?f(today):sel,t:''});ntDraw();msPh='Sin asignar (backlog)';ms=t.owners.slice();msDraw();d.showModal();tipoChg(1);jorChg();if(rdo(t,id))roModal(d);else if(isUser())limModal(d,!id,!!id);
 }
 let nd=[];
 function ntDraw(){const ed=n=>!isUser()||n.d===f(today)||n.d===off(1),mm=isUser()?` min="${f(today)}" max="${off(1)}"`:'';
@@ -463,7 +466,7 @@ let ms=[];
 function msTog(){const p=$('#ms-p');p.hidden=!p.hidden;if(!p.hidden){$('#ms-q').value='';msDraw();$('#ms-q').focus()}}
 function msPick(id){ms=ms.includes(id)?ms.filter(x=>x!==id):[...ms,id];msDraw()}
 function msDraw(){const q=($('#ms-q').value||'').toLowerCase();
- $('#ms-c').innerHTML=ms.length?ms.map(id=>`<span class="ms-chip">${esc((person(id)||{}).name||'?')}<b onclick="event.stopPropagation();msPick(${id})">✕</b></span>`).join(''):'<span class="ms-ph">Sin asignar (backlog)</span>';
+ $('#ms-c').innerHTML=ms.length?ms.map(id=>`<span class="ms-chip">${esc((person(id)||{}).name||'?')}<b onclick="event.stopPropagation();msPick(${id})">✕</b></span>`).join(''):`<span class="ms-ph">${msPh}</span>`;
  $('#ms-l').innerHTML=people.filter(p=>p.name.toLowerCase().includes(q)).map(p=>`<div class="ms-o${ms.includes(p.id)?' on':''}" onclick="msPick(${p.id})">${esc(p.name)} <span class="sub">· ${esc(p.role)}</span>${ms.includes(p.id)?'<span style="float:right">✓</span>':''}</div>`).join('')||'<div class="ms-o sub">Sin resultados</div>'}
 document.addEventListener('click',e=>{const p=$('#ms-p');if(p&&!e.composedPath().some(n=>n.id==='f-o'))p.hidden=true});
 function jorChg(){const n=jor($('#f-i').value,$('#f-x').value);$('#f-j').textContent=n?'Tiempo estimado: '+n+(n===1?' jornada':' jornadas'):''}
@@ -500,6 +503,8 @@ const isMain=()=>!linked()||(!ro()&&!!me()&&!!me().admin&&(mainAdm()===null||me(
 const rdo=(t,id)=>ro()||(isUser()&&!!id&&(t.tipo==='reunion'||!(me()&&has(t,me().id))));
 const canAdd=pid=>!ro()&&(isAdmin()||(isUser()&&!!me()&&me().id===pid));
 let sha=null,dirty=false,pushing=false,queued=false,timer=null;
+let bxs=[],bxGone={},bxSha=null,bxDirty=false,bxTimer=null,bxEtag=null,bxLegacy=[],bxReady=false,bxBusy=null,bxAgain=false,bxStat={c:'',m:''},bxLim=50,bxT=null,bxCT=null,bxd=[],msPh='Sin asignar (backlog)';
+let bxq={txt:'',per:'',est:'',sev:'',cod:'',pri:'',by:'created',d1:'',d2:'',late:false,ord:'created-desc'};
 const hora=()=>new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
 const apiUrl=()=>`https://api.github.com/repos/${repo()}/contents/${cfg.path||'data.json'}`;
 const H=()=>({Authorization:'Bearer '+cfg.token,Accept:'application/vnd.github+json'});
@@ -539,21 +544,22 @@ async function readFile(url){
  if(r.status===404)return{sha:null,text:null};
  if(!r.ok)throw new Error('GitHub respondió '+r.status);
  let j;try{j=await r.json()}catch(e){throw new Error('GitHub devolvió una respuesta vacía')}
- etag=(r.headers&&r.headers.get&&r.headers.get('ETag'))||null;
+ const et=(r.headers&&r.headers.get&&r.headers.get('ETag'))||null;
  let u=j.content?b642bin(j.content):new Uint8Array(0);
  if(!u.length&&j.size>0){const r2=await fetch(q,{headers:{...H(),Accept:'application/vnd.github.raw+json'},cache:'no-store'});if(!r2.ok)throw new Error('GitHub respondió '+r2.status);u=new Uint8Array(await r2.arrayBuffer())}
- return{sha:j.sha,text:await bin2text(u)}}
+ return{sha:j.sha,etag:et,text:await bin2text(u)}}
 async function pull(){
  if(!linked())return setSt('','Local · sin GitHub');
  setSt('busy','Sincronizando…');
  let x;try{x=await readFile(apiUrl())}catch(e){setSt('err','Error al leer ('+e.message+')');return}
  if(x.text===null){sha=null;dirty=true;return push()}
- sha=x.sha;
+ sha=x.sha;etag=x.etag||null;
  if(!x.text.trim()){if(ro()){setSt('err','El fichero de datos está vacío');return}dirty=true;return push()}
  let o;try{o=JSON.parse(x.text)}catch(e){setSt('err','El fichero de datos no es un JSON válido ('+e.message+'). No se ha modificado: revísalo en GitHub.');return}
  if(!o||typeof o!=='object'||Array.isArray(o)){setSt('err','El fichero de datos no tiene el formato esperado. No se ha modificado.');return}
  people=o.people||[];tasks=o.tasks||[];auth=o.auth||null;norm();cache();pend=null;dis=null;showUpd(false);setSt('ok','☁ Sincronizado '+hora());
- try{if(!$('#dlg').open){draw();if(!ro()&&people.length&&!me())openMe()}}catch(e){setSt('err','Error al mostrar los datos ('+e.message+')')}}
+ try{if(!$('#dlg').open){draw();if(!ro()&&people.length&&!me())openMe()}}catch(e){setSt('err','Error al mostrar los datos ('+e.message+')')}
+ if(bxLegacy.length)bxMigrate()}
 /* Sondeo ligero: solo descarga el fichero entero (unos MB) cuando cambia el sha */
 async function check(){
  if(!linked()||dirty||pushing)return;
@@ -569,12 +575,12 @@ async function check(){
   pend={sha:x.sha,o};showUpd(true)}catch(e){}}
 function showUpd(v){const e=$('#upd');if(e)e.hidden=!v}
 function applyPending(){if(!pend)return;const o=pend.o;
- sha=pend.sha;people=o.people||[];tasks=o.tasks||[];auth=o.auth||null;norm();cache();pend=null;dis=null;showUpd(false);setSt('ok','☁ Actualizado '+hora());draw()}
+ sha=pend.sha;people=o.people||[];tasks=o.tasks||[];auth=o.auth||null;norm();cache();pend=null;dis=null;showUpd(false);setSt('ok','☁ Actualizado '+hora());draw();if(bxLegacy.length)bxMigrate()}
 function dismissUpd(){if(pend)dis=pend.sha;pend=null;showUpd(false)}
 async function push(){
  if(!linked()||ro())return;if(pushing){queued=true;return}
  pushing=true;setSt('busy','Guardando…');
- try{const b={message:'Daily Tracker '+new Date().toISOString(),content:bin2b64(await snapBytes())};
+ try{if(bxLegacy.length&&!(await bxFlushLegacy()))throw new Error('errores de build sin migrar');const b={message:'Daily Tracker '+new Date().toISOString(),content:bin2b64(await snapBytes())};
   if(sha)b.sha=sha;if(cfg.branch)b.branch=cfg.branch;
   const r=await fetch(apiUrl(),{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify(b)});
   if(r.status===409||r.status===422){dirty=false;pushing=false;setSt('err','Conflicto con otro dispositivo: recargando, repite el cambio');return pull()}
@@ -664,9 +670,6 @@ addEventListener('focus',dayCheck);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)dayCheck()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 /* ==== Importar errores desde Excel (.xlsx), sin librerías externas ==== */
-const canImp=()=>!ro()&&isAdmin();
-function impStart(){if(!canImp())return;const i=document.createElement('input');i.type='file';i.accept='.xlsx';i.style.display='none';document.body.appendChild(i);
- i.onchange=()=>{const x=i.files[0];i.remove();if(x)impFile(x)};i.addEventListener('cancel',()=>i.remove());i.click()}
 async function zipOpen(buf){
  const u=new Uint8Array(buf),dv=new DataView(buf),dec=new TextDecoder();let e=-1;
  for(let i=u.length-22;i>=Math.max(0,u.length-70000);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break}}
@@ -716,18 +719,6 @@ function impTitle(r){const b=impFix(r.bloque_log);
 function impDesc(r){const W=17,pad=s=>s+' '.repeat(Math.max(0,W-s.length)),ind=' '.repeat(W+3);
  const F=[['ID',r.id],['Severidad',r.severidad],['Código',r.codigo],['Componente',r.componente],['Fichero',r.fichero],['Línea',r.linea],['Error_Advertencia',r.error_advertencia],['Como_corregir',r.como_corregir],['Fragmento',r.fragmento],['Bloque_Log',r.bloque_log]];
  return F.map(([k,v])=>pad(k)+' : '+impFix(v).replace(/\s+$/,'').split('\n').map((l,i)=>i&&l?ind+l:l).join('\n')).join('\n')}
-async function impFile(file){
- if(!canImp())return;setSt('busy','Leyendo Excel…');
- let L;try{L=await impParse(file)}catch(e){setSt('err','Excel no válido');alert('No se pudo leer el Excel: '+e.message);return}
- const have=new Set(tasks.filter(t=>t.xid).map(t=>t.xid)),seen=new Set(),nw=[];
- L.forEach(r=>{if(r.id&&(have.has(r.id)||seen.has(r.id)))return;if(r.id)seen.add(r.id);nw.push(r)});
- const dup=L.length-nw.length;
- if(!nw.length){setSt('','Sin errores nuevos');alert('No hay errores nuevos: las '+L.length+' filas del Excel ya estaban importadas.');return}
- if(!confirm('Se van a importar '+nw.length+' errores al backlog'+(dup?' ('+dup+' ya existían y se omiten)':'')+'.\n\nTipo: Error · Estado: Pendiente · Fecha: '+today.toLocaleDateString('es-ES')+'\n\n¿Continuar?')){setSt('','Importación cancelada');return}
- const ids=new Set(tasks.map(t=>t.id));let nx=nid();
- nw.forEach(r=>{while(ids.has(nx))nx++;ids.add(nx);tasks.push({id:nx,title:impTitle(r),desc:impDesc(r),start:'',end:'',status:'pendiente',owners:[],created:f(today),est:'',urgent:false,tipo:'error',xid:r.id,notes:[]})});
- blF='error';commit();
- alert(nw.length+' errores importados al backlog'+(dup?' ('+dup+' omitidos por estar ya importados)':'')+'.')}
 let blF='';
 function selfAssign(id){if(ro())return;if(!me()){openMe();return}const t=tasks.find(x=>x.id===id);if(!t||t.tipo!=='error'||t.owners.length||t.status!=='pendiente'){alert('Este error ya no está disponible en el backlog.');draw();return}assign(id,me().id)}
 function dshort(t){const d=t.desc||'';
@@ -750,7 +741,7 @@ function blSet(v){blQ=v;const e=$('#bl-res');if(e)e.innerHTML=blList()}
 function backlog(){
  const{all}=blData(),ne=all.filter(t=>t.tipo==='error').length;
  return `<div class="top"><div><h1>Backlog</h1><div class="sub">Pendientes de asignar · ${all.length-ne} tareas · ${ne} errores</div></div>
- <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select style="width:auto" onchange="blF=this.value;draw()"><option value="">Todo</option><option value="tarea"${blF==='tarea'?' selected':''}>Solo tareas</option><option value="error"${blF==='error'?' selected':''}>Solo errores</option></select>${canImp()?'<button class="btn ghost" onclick="impStart()">⬆ Importar errores (Excel)</button>':''}<button class="btn" onclick="openTask(0,null)">+ Añadir al backlog</button></div></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select style="width:auto" onchange="blF=this.value;draw()"><option value="">Todo</option><option value="tarea"${blF==='tarea'?' selected':''}>Solo tareas</option><option value="error"${blF==='error'?' selected':''}>Solo errores</option></select><button class="btn" onclick="openTask(0,null)">+ Añadir al backlog</button></div></div>
  <div class="qf" style="grid-template-columns:1fr"><div><label>Texto (título, descripción, seguimiento o persona)</label><input value="${esc(blQ)}" placeholder="Buscar…" oninput="blSet(this.value)"></div></div>
  <div id="bl-res">${blList()}</div>`;
 }
@@ -773,11 +764,199 @@ function remOk(k){remDone[k]=Date.now();const cut=Date.now()-2*864e5;Object.keys
 function remOpen(id){openTask(id)}
 function remPerm(){Notification.requestPermission().then(()=>remCheck())}
 setInterval(remCheck,20000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)remCheck()});
+/* ==================== ERRORES DE BUILD: almacén (errores.json), sincronización y pantalla totalmente independientes ==================== */
+const bxPath=()=>cfg.bxPath||'errores.json';
+const bxUrl=()=>`https://api.github.com/repos/${repo()}/contents/${bxPath()}`;
+function bxMeta(e){const g=k=>{const m=(e.desc||'').match(new RegExp('^'+k+' *: (.*)$','m'));return m?m[1].trim():''};
+ if(!e.sev)e.sev=g('Severidad');if(!e.cod)e.cod=g('Código');if(!e.comp)e.comp=g('Componente');if(!e.fic)e.fic=g('Fichero');if(!e.lin)e.lin=g('Línea');return e}
+const bxBase=()=>({title:'',desc:'',status:'pendiente',owners:[],created:f(today),start:'',end:'',est:'',urgent:false,sev:'',cod:'',comp:'',fic:'',lin:'',notes:[]});
+const bxNew=o=>({id:'M'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),...bxBase(),m:Date.now(),...o});
+const bxFromTask=t=>bxMeta({...bxBase(),id:t.xid||('T'+t.id),title:t.title,desc:t.desc||'',status:t.status||'pendiente',owners:(t.owners||[]).slice(),created:t.created||f(today),start:t.start||'',end:t.end||'',est:t.est||'',urgent:!!t.urgent,notes:(t.notes||[]).map(n=>({...n})),m:0});
+const bxFind=id=>bxs.find(e=>e.id===id);
+function bxNormAll(){bxs=bxs.filter(e=>e&&e.id!=null).map(e=>({...bxBase(),...e,owners:e.owners||[],notes:e.notes||[],m:e.m||0}))}
+function bxMerge(rem,remGone){
+ const by=new Map(bxs.map(e=>[e.id,e]));
+ for(const e of rem||[]){if(!e||e.id==null)continue;const l=by.get(e.id);if(!l||(e.m||0)>(l.m||0))by.set(e.id,e)}
+ for(const[k,v]of Object.entries(remGone||{}))if(!(bxGone[k]>=v))bxGone[k]=v;
+ const old=Date.now()-120*864e5;for(const k of Object.keys(bxGone))if(bxGone[k]<old)delete bxGone[k];
+ bxs=[...by.values()].filter(e=>!(bxGone[e.id]>=(e.m||0)));bxNormAll()}
+async function bxBytes(){const s=JSON.stringify({version:1,updated:new Date().toISOString(),errors:bxs,gone:bxGone});
+ if(ZIP&&CAN_GZ){try{return await gzip(s)}catch(e){}}return new TextEncoder().encode(s)}
+function bxSt(c,m){bxStat={c,m};const e=$('#bx-st');if(e){e.className='bx-st '+c;e.textContent=m}}
+function bxCacheSave(){clearTimeout(bxCT);bxCT=setTimeout(()=>{idbSet('bx',{errors:bxs,gone:bxGone}).catch(()=>{})},250)}
+async function bxRead(){const x=await readFile(bxUrl());
+ if(x.text===null)return{sha:null,list:null};
+ if(!x.text.trim())return{sha:x.sha,etag:x.etag,list:[],gone:{}};
+ let o;try{o=JSON.parse(x.text)}catch(e){throw new Error('el fichero '+bxPath()+' no es un JSON válido')}
+ if(!o||typeof o!=='object'||!Array.isArray(o.errors))throw new Error('el fichero '+bxPath()+' no tiene el formato esperado');
+ return{sha:x.sha,etag:x.etag,list:o.errors,gone:o.gone||{}}}
+async function bxPull(){
+ if(!linked()){bxReady=true;bxSt('','Local · sin GitHub');return true}
+ let r;try{r=await bxRead()}catch(e){bxSt('err','Error al leer ('+e.message+')');return false}
+ bxReady=true;
+ if(r.list===null){bxSha=null;bxEtag=null;if(bxs.length&&!ro()){bxDirty=true;return bxPush()}bxSt('ok','Sin datos guardados aún');bxRedraw();return true}
+ bxSha=r.sha;bxEtag=r.etag||null;
+ if(bxDirty||bxLegacy.length)bxMerge(r.list,r.gone);else{bxs=r.list;bxGone=r.gone||{};bxNormAll()}
+ bxCacheSave();bxSt('ok','☁ Sincronizado '+hora());bxRedraw();return true}
+function bxPush(){
+ if(bxBusy){bxAgain=true;return bxBusy}
+ bxBusy=(async()=>{let ok=true;do{bxAgain=false;ok=await bxPushOnce()}while(bxAgain&&ok);return ok})().finally(()=>{bxBusy=null});return bxBusy}
+async function bxPushOnce(){
+ if(!linked()||ro()){bxDirty=false;return true}
+ bxSt('busy','Guardando…');
+ for(let n=0;n<4;n++){
+  try{
+   const b={message:'Errores de build '+new Date().toISOString(),content:bin2b64(await bxBytes())};if(bxSha)b.sha=bxSha;if(cfg.branch)b.branch=cfg.branch;
+   bxDirty=false;
+   const r=await fetch(bxUrl(),{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify(b)});
+   if(r.status===409||r.status===422){bxDirty=true;const x=await bxRead();bxSha=x.sha;if(x.list)bxMerge(x.list,x.gone);bxRedraw();continue}   /* otra persona guardó antes: se fusiona y se reintenta */
+   if(!r.ok)throw new Error(r.status);
+   bxSha=(await r.json()).content.sha;bxEtag=null;bxSt('ok','☁ Guardado '+hora());bxCacheSave();bxRedraw();return true}
+  catch(e){bxDirty=true;bxSt('err',e.message==='403'?'Sin permiso de escritura: token de solo lectura o límite de GitHub':'No se pudo guardar ('+e.message+')');return false}}
+ bxDirty=true;bxSt('err','Conflicto repetido al guardar; se reintentará');return false}
+function bxCommit(){if(ro())return;bxCacheSave();bxDirty=true;clearTimeout(bxTimer);bxTimer=setTimeout(()=>bxPush(),800);bxRedraw()}
+async function bxCheck(){
+ if(!linked()||bxDirty||bxBusy||!bxReady)return;
+ try{const r=await fetch(bxUrl()+'?t='+Date.now()+(cfg.branch?'&ref='+cfg.branch:''),{headers:bxEtag?{...H(),'If-None-Match':bxEtag}:H(),cache:'no-store'});
+  if(r.status===304||!r.ok)return;
+  const m=await r.json();
+  if(m.sha===bxSha){const e=r.headers.get('ETag');if(e)bxEtag=e;return}
+  if($('#dlg').open)return;   /* no pisar lo que se está editando; se aplica en el siguiente sondeo */
+  await bxPull()}catch(e){}}
+/* Errores de build que estaban como tareas (los importados del Excel, con xid): se pasan aquí y solo después se quitan de data.json */
+async function bxFlushLegacy(){
+ if(!bxLegacy.length)return true;
+ bxMerge(bxLegacy.map(bxFromTask),{});bxDirty=true;bxCacheSave();
+ if(!linked()||ro()){bxLegacy=[];bxDirty=false;return true}
+ const ok=await bxPush();if(ok)bxLegacy=[];return ok}
+async function bxMigrate(){if(!bxLegacy.length||ro())return;if(await bxFlushLegacy())commit()}
+/* ---------- pantalla ---------- */
+const bxQ0=()=>({txt:'',per:'',est:'',sev:'',cod:'',pri:'',by:'created',d1:'',d2:'',late:false,ord:'created-desc'});
+function bxRows(){const t0=nz(bxq.txt.trim()),td=f(today),by={start:'start',end:'end',created:'created',est:'est'}[bxq.by]||'created';
+ const L=bxs.filter(e=>{
+  if(bxq.per==='_none'){if(e.owners.length)return false}else if(bxq.per&&!e.owners.includes(+bxq.per))return false;
+  if(bxq.est==='_open'){if(e.status==='finalizada')return false}else if(bxq.est&&e.status!==bxq.est)return false;
+  if(bxq.sev&&e.sev!==bxq.sev)return false;if(bxq.cod&&e.cod!==bxq.cod)return false;
+  if(bxq.pri==='1'&&!e.urgent)return false;if(bxq.pri==='0'&&e.urgent)return false;
+  if(bxq.late&&!(e.est&&e.status!=='finalizada'&&e.est<td))return false;
+  if(bxq.d1||bxq.d2){const v=e[by];if(!v)return false;if(bxq.d1&&v<bxq.d1)return false;if(bxq.d2&&v>bxq.d2)return false}
+  if(t0&&!sKey(e).includes(t0)&&!nz(names(e)).includes(t0))return false;
+  return true});
+ const dc=new Map();if(/^days/.test(bxq.ord))L.forEach(e=>dc.set(e,days(e)));
+ const cmp={'created-desc':(a,b)=>(b.created||'').localeCompare(a.created||''),'created-asc':(a,b)=>(a.created||'~').localeCompare(b.created||'~'),'days-desc':(a,b)=>dc.get(b)-dc.get(a),'days-asc':(a,b)=>dc.get(a)-dc.get(b),'title':(a,b)=>a.title.localeCompare(b.title),'person':(a,b)=>names(a).localeCompare(names(b)),'cod':(a,b)=>(a.cod||'').localeCompare(b.cod||'')||a.title.localeCompare(b.title)}[bxq.ord]||(()=>0);
+ return L.sort(cmp)}
+function bxHtml(){const L=bxRows(),d=n=>n===1?'1 día':n+' días',wd=L.filter(e=>e.start),tot=wd.reduce((a,e)=>a+days(e),0),dis=ro()?' disabled':'';
+ const sevc=s=>s==='ERROR'?'<span class="chip" style="background:var(--urgb);color:var(--urg)">ERROR</span>':s?`<span class="chip" style="background:#fff3d6;color:#8a5a00">${esc(s)}</span>`:'';
+ const psel=e=>{const o=e.owners;return `<select class="bx-sel"${dis} onchange="bxAssign('${esc(e.id)}',this.value)"><option value="">Sin asignar</option>${o.length>1?`<option value="*" selected>${esc(names(e))}</option>`:''}${people.map(p=>`<option value="${p.id}"${o.length===1&&o[0]===p.id?' selected':''}>${esc(p.name)}</option>`).join('')}</select>`};
+ const ssel=e=>`<select class="bx-sel"${dis} onchange="bxStatus('${esc(e.id)}',this.value)">${Object.entries(ST).map(([k,v])=>`<option value="${k}"${e.status===k?' selected':''}>${v}</option>`).join('')}</select>`;
+ return `<div class="sub" style="margin:6px 2px 8px"><b>${L.length}</b> ${L.length===1?'resultado':'resultados'}${wd.length?` · ${d(tot)} acumulados · media ${d(Math.round(tot/wd.length))}`:''}</div>
+ <div class="tw"><table style="min-width:1000px"><tr><th>Error</th><th>Código</th><th>Sev.</th><th>Persona</th><th>Estado</th><th>Creado</th><th>Inicio</th><th>Fin</th><th>Días</th></tr>
+ ${L.slice(0,bxLim).map(e=>{const n=e.notes[e.notes.length-1],ub=[e.comp,e.fic?e.fic.split('/').pop()+(e.lin?':'+e.lin:''):''].filter(Boolean).join(' · ');
+  return `<tr><td><span class="lnk" onclick="bxOpen('${esc(e.id)}')">${e.urgent?PI:''}${esc(e.title)}</span><div class="sub">${esc(ub)}${n?(ub?' · ':'')+'💬 '+esc(n.t).slice(0,60):''}</div></td><td>${esc(e.cod||'—')}</td><td>${sevc(e.sev)}</td><td>${psel(e)}</td><td>${ssel(e)}</td><td>${fmt(e.created)}</td><td>${fmt(e.start)}</td><td>${fmt(e.end)}</td><td>${e.start?days(e):'—'}</td></tr>`}).join('')||'<tr><td colspan="9" class="sub">Ningún error cumple los filtros.</td></tr>'}</table></div>${L.length>bxLim?`<div class="tip">Mostrando ${bxLim} de ${L.length}. <button class="btn ghost sm" onclick="bxMore()">Mostrar ${ST_PAGE} más</button> o afina los filtros; el CSV exporta todo.</div>`:''}`}
+function bxKpi(){const c={};bxs.forEach(e=>{c[e.status]=(c[e.status]||0)+1});const fin=c.finalizada||0;
+ const k=(l,n,est)=>`<div class="kpi" style="cursor:pointer" onclick="bxKpiSet('${est}')"><b>${n}</b><span>${l}</span></div>`;
+ return k('Errores en total',bxs.length,'')+k('Abiertos',bxs.length-fin,'_open')+k('Pendientes',c.pendiente||0,'pendiente')+k('En proceso',c.proceso||0,'proceso')+k('Paradas',c.parada||0,'parada')+k('Finalizados',fin,'finalizada')}
+const bxOpts=(a,cur)=>a.map(x=>`<option value="${esc(x[0])}"${String(cur)===String(x[0])?' selected':''}>${esc(x[1])}</option>`).join('');
+const bxUniq=k=>[...new Set(bxs.map(e=>e[k]).filter(Boolean))].sort();
+const bxCodOpts=()=>bxOpts([['','Todos'],...bxUniq('cod').map(c=>[c,c])],bxq.cod);
+const bxSevOpts=()=>bxOpts([['','Todas'],...bxUniq('sev').map(c=>[c,c])],bxq.sev);
+function bxRedraw(){if(view!=='errores')return;const r=$('#bx-res');if(!r)return;r.innerHTML=bxHtml();const k=$('#bx-kpi');if(k)k.innerHTML=bxKpi();const c=$('#bx-cod');if(c)c.innerHTML=bxCodOpts();const v=$('#bx-sev');if(v)v.innerHTML=bxSevOpts()}
+function bxSet(k,v){bxq[k]=v;bxLim=ST_PAGE;bxRedraw()}
+function bxTxt(v){bxq.txt=v;bxLim=ST_PAGE;clearTimeout(bxT);bxT=setTimeout(bxRedraw,220)}
+function bxKpiSet(v){bxq.est=v;bxLim=ST_PAGE;draw()}
+function bxClear(){bxq=bxQ0();bxLim=ST_PAGE;draw()}
+function bxMore(){bxLim+=ST_PAGE;bxRedraw()}
+function bxScreen(){const sl=(k,a)=>`<select onchange="bxSet('${k}',this.value)">${bxOpts(a,bxq[k])}</select>`,w=ro();
+ return `<div class="top"><div><h1>🛠️ Errores de build</h1><div class="sub">Errores y avisos del build (p. ej. actualización de Angular). Gestión independiente del Backlog; cualquier persona puede editarlos.</div></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span id="bx-st" class="bx-st ${bxStat.c}">${esc(bxStat.m)}</span>${w?'':'<button class="btn ghost" onclick="bxImp()">⬆ Importar Excel</button>'}<button class="btn ghost" onclick="bxCsv()">⬇ CSV</button>${w?'':'<button class="btn" onclick="bxOpen()">+ Nuevo error</button>'}</div></div>
+ <div class="kpis" id="bx-kpi">${bxKpi()}</div>
+ <div class="qf">
+ <div style="grid-column:1/-1"><label>Texto (título, descripción, seguimiento o persona)</label><input value="${esc(bxq.txt)}" placeholder="Buscar…" oninput="bxTxt(this.value)"></div>
+ <div><label>Persona</label>${sl('per',[['','Todas'],['_none','Sin asignar'],...people.map(p=>[String(p.id),p.name])])}</div>
+ <div><label>Estado</label>${sl('est',[['','Todos'],['_open','Abiertos (no finalizados)'],['proceso','En proceso'],['parada','Parada'],['pendiente','Pendiente'],['finalizada','Finalizado']])}</div>
+ <div><label>Severidad</label><select id="bx-sev" onchange="bxSet('sev',this.value)">${bxSevOpts()}</select></div>
+ <div><label>Código</label><select id="bx-cod" onchange="bxSet('cod',this.value)">${bxCodOpts()}</select></div>
+ <div><label>Prioridad</label>${sl('pri',[['','Todas'],['1','Solo prioritarios'],['0','No prioritarios']])}</div>
+ <div><label>Filtrar fechas por</label>${sl('by',[['created','Creación'],['start','Inicio'],['end','Fin'],['est','Fin estimado']])}</div>
+ <div><label>Desde</label><input type="date" value="${bxq.d1}" onchange="bxSet('d1',this.value)"></div>
+ <div><label>Hasta</label><input type="date" value="${bxq.d2}" onchange="bxSet('d2',this.value)"></div>
+ <div><label>Ordenar por</label>${sl('ord',[['created-desc','Creación (recientes primero)'],['created-asc','Creación (antiguos primero)'],['days-desc','Más días'],['days-asc','Menos días'],['title','Título A–Z'],['cod','Código'],['person','Persona']])}</div>
+ <div style="display:flex;align-items:end"><label style="display:flex;gap:6px;align-items:center;margin:0 0 9px;color:var(--ink);font-size:14px"><input type="checkbox" style="width:auto" ${bxq.late?'checked':''} onchange="bxSet('late',this.checked)"> Pasados de fecha estimada</label></div>
+ <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost sm" onclick="bxClear()">Limpiar filtros</button></div></div>
+ <div id="bx-res">${bxHtml()}</div>`}
+/* ---------- edición (todo el mundo puede tocar todo) ---------- */
+function bxAssign(id,v){if(ro()||v==='*')return;const e=bxFind(id);if(!e)return;
+ if(v){const p=+v;e.owners=[p];if(e.status==='pendiente'){e.status='proceso';if(!e.start)e.start=f(today)}e.notes.push({d:f(today),t:'Asignado a '+((person(p)||{}).name||'?')})}
+ else{e.owners=[];if(e.status==='proceso'||e.status==='parada'){e.status='pendiente';e.start=''}e.notes.push({d:f(today),t:'Sin asignar'})}
+ e.m=Date.now();bxCommit()}
+function bxStatus(id,v){if(ro())return;const e=bxFind(id);if(!e||!ST[v])return;
+ e.status=v;if(v==='proceso'&&!e.start)e.start=f(today);if(v==='pendiente')e.start='';if(v==='finalizada'){if(!e.start)e.start=f(today);if(!e.end)e.end=f(today)}else e.end='';
+ e.notes.push({d:f(today),t:'Estado: '+ST[v]});e.m=Date.now();bxCommit()}
+function bxNtDraw(){$('#bx-nt').innerHTML=bxd.map((n,i)=>`<tr><td style="width:140px;padding:4px"><input type="date" value="${esc(n.d)}" onchange="bxd[${i}].d=this.value"></td><td style="padding:4px"><input value="${esc(n.t)}" placeholder="Ej.: corregido en la rama X" oninput="bxd[${i}].t=this.value"></td><td style="width:40px;padding:4px"><button class="btn ghost sm" data-w="1" title="Quitar línea" onclick="bxd.splice(${i},1);bxNtDraw()">✕</button></td></tr>`).join('')}
+function bxNtAdd(){bxd.push({d:f(today),t:''});bxNtDraw();const x=document.querySelectorAll('#bx-nt input[placeholder]');if(x.length)x[x.length-1].focus()}
+function bxOpen(id){
+ const e=id?bxFind(id):bxNew({});if(id&&!e){alert('Ese error ya no existe.');return}
+ const d=$('#dlg'),sv=['','ERROR','WARNING'];if(e.sev&&!sv.includes(e.sev))sv.push(e.sev);
+ d.innerHTML=`<h2 style="margin:0;color:var(--steel-d);font-size:18px">${id?'Error de build':'Nuevo error de build'}</h2>
+ <label>Título</label><input id="bf-t" value="${esc(e.title)}">
+ <label>Descripción</label><textarea id="bf-d" class="mono" rows="8">${esc(e.desc)}</textarea>
+ <div class="two"><div><label>Código</label><input id="bf-cod" value="${esc(e.cod)}"></div>
+ <div><label>Severidad</label><select id="bf-sev">${sv.map(s=>`<option value="${esc(s)}"${s===e.sev?' selected':''}>${s||'—'}</option>`).join('')}</select></div>
+ <div><label>Componente</label><input id="bf-comp" value="${esc(e.comp)}"></div>
+ <div><label>Línea</label><input id="bf-lin" value="${esc(e.lin)}"></div>
+ <div style="grid-column:1/-1"><label>Fichero</label><input id="bf-fic" value="${esc(e.fic)}"></div>
+ <div style="grid-column:1/-1"><label>Personas asignadas (sin marcar = sin asignar)</label><div class="ms" id="f-o"><div class="ms-f" onclick="msTog()"><span id="ms-c" class="ms-cs"></span><span class="ms-ar">▾</span></div><div class="ms-p" id="ms-p" hidden><input id="ms-q" placeholder="Buscar persona…" oninput="msDraw()"><div id="ms-l"></div></div></div></div>
+ <div><label>Estado</label><select id="bf-s">${Object.entries(ST).map(([k,v])=>`<option value="${k}"${k===e.status?' selected':''}>${v}</option>`).join('')}</select></div>
+ <div><label>Creado</label><input type="date" id="bf-c" value="${e.created||f(today)}"></div>
+ <div><label>Inicio</label><input type="date" id="bf-i" value="${e.start||''}"></div>
+ <div><label>Fin</label><input type="date" id="bf-e" value="${e.end||''}"></div>
+ <div><label>Fin estimado</label><input type="date" id="bf-x" value="${e.est||''}"></div></div>
+ <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="bf-u" style="width:auto" ${e.urgent?'checked':''}> Prioritario / urgente</label>
+ <label>Seguimiento</label>
+ <div class="tw" style="margin:0;max-height:230px;overflow:auto"><table style="min-width:0"><thead><tr><th>Fecha</th><th>Comentario</th><th></th></tr></thead><tbody id="bx-nt"></tbody></table></div>
+ <button class="btn ghost sm" data-w="1" style="margin-top:8px" onclick="bxNtAdd()">+ Añadir línea</button>
+ <div class="acts">${id?`<button class="btn ghost" data-w="1" style="margin-right:auto" onclick="bxDel('${esc(e.id)}')">Eliminar</button>`:''}<button class="btn ghost" onclick="$('#dlg').close()">Cancelar</button><button class="btn" data-w="1" onclick="bxSave(${id?`'${esc(e.id)}'`:'null'})">Guardar</button></div>`;
+ bxd=e.notes.map(n=>({...n}));if(!ro())bxd.push({d:f(today),t:''});bxNtDraw();msPh='Sin asignar';ms=e.owners.slice();msDraw();d.showModal();
+ if(ro()){d.querySelectorAll('input,select,textarea').forEach(x=>x.disabled=true);const m=$('#f-o');if(m){m.style.pointerEvents='none';m.style.opacity='.75'}d.querySelectorAll('[data-w]').forEach(b=>b.style.display='none');const h=d.querySelector('h2');if(h)h.textContent+=' (solo lectura)'}}
+function bxSave(id){if(ro())return;const t=$('#bf-t').value.trim();if(!t){alert('Pon un título.');return}
+ let e=id?bxFind(id):null;if(id&&!e){alert('Ese error ya no existe (otra persona lo ha eliminado).');$('#dlg').close();return}
+ const isNew=!e;if(isNew)e=bxNew({});const prev=e.owners.slice(),owners=ms.slice();
+ Object.assign(e,{title:t,desc:$('#bf-d').value,cod:$('#bf-cod').value.trim(),sev:$('#bf-sev').value,comp:$('#bf-comp').value.trim(),fic:$('#bf-fic').value.trim(),lin:$('#bf-lin').value.trim(),owners,status:$('#bf-s').value,created:$('#bf-c').value||f(today),start:$('#bf-i').value,end:$('#bf-e').value,est:$('#bf-x').value,urgent:$('#bf-u').checked,notes:bxd.filter(n=>n.t.trim()).map(n=>({d:n.d||f(today),t:n.t.trim()})),m:Date.now()});
+ if(owners.length&&!prev.length&&e.status==='pendiente'){e.status='proceso';if(!e.start)e.start=f(today)}
+ if(!owners.length&&(e.status==='proceso'||e.status==='parada'))e.status='pendiente';
+ if(e.status==='finalizada'&&!e.end)e.end=f(today);
+ if(isNew)bxs.push(e);$('#dlg').close();bxCommit()}
+function bxDel(id){const e=bxFind(id);if(!e||ro())return;if(!confirm('¿Eliminar este error?\n\n'+e.title))return;bxGone[id]=Date.now();bxs=bxs.filter(x=>x.id!==id);$('#dlg').close();bxCommit()}
+/* ---------- importar Excel y exportar CSV ---------- */
+function bxImp(){if(ro())return;const i=document.createElement('input');i.type='file';i.accept='.xlsx';i.style.display='none';document.body.appendChild(i);
+ i.onchange=()=>{const x=i.files[0];i.remove();if(x)bxImpFile(x)};i.addEventListener('cancel',()=>i.remove());i.click()}
+async function bxImpFile(file){
+ if(ro())return;bxSt('busy','Leyendo Excel…');
+ let L;try{L=await impParse(file)}catch(e){bxSt('err','Excel no válido');alert('No se pudo leer el Excel: '+e.message);return}
+ const have=new Set(bxs.map(e=>e.id)),seen=new Set(),nw=[];
+ L.forEach(r=>{const id=r.id||'';if(id&&(have.has(id)||seen.has(id)))return;if(id)seen.add(id);nw.push(r)});
+ const dup=L.length-nw.length;
+ if(!nw.length){bxSt('ok','Sin errores nuevos');alert('No hay errores nuevos: las '+L.length+' filas del Excel ya estaban importadas.');return}
+ if(!confirm('Se van a importar '+nw.length+' errores de build'+(dup?' ('+dup+' ya existían y se omiten)':'')+'.\n\nEstado: Pendiente · Fecha: '+today.toLocaleDateString('es-ES')+'\n\n¿Continuar?')){bxSt(bxStat.c==='busy'?'':bxStat.c,'Importación cancelada');return}
+ nw.forEach(r=>bxs.push(bxNew({id:r.id||undefined,title:impTitle(r),desc:impDesc(r),sev:r.severidad,cod:r.codigo,comp:r.componente,fic:r.fichero,lin:r.linea})));
+ bxq=bxQ0();bxLim=ST_PAGE;bxCommit();if(view==='errores')draw();
+ alert(nw.length+' errores importados'+(dup?' ('+dup+' omitidos por estar ya importados)':'')+'.')}
+function bxCsv(){const c=x=>{let v=String(x==null?'':x);if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};
+ const head=['ID','Título','Código','Severidad','Componente','Fichero','Línea','Personas','Estado','Prioritario','Creado','Inicio','Fin','Fin estimado','Días','Descripción','Seguimiento'];
+ const rows=bxRows().map(e=>[e.id,e.title,e.cod,e.sev,e.comp,e.fic,e.lin,names(e),ST[e.status],e.urgent?'Sí':'No',e.created||'',e.start||'',e.end||'',e.est||'',e.start?days(e):'',e.desc||'',e.notes.map(n=>n.d+': '+n.t).join(' | ')]);
+ const b=new Blob(['﻿'+[head,...rows].map(r=>r.map(c).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(b);a.download='errores-build-'+f(today)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+setInterval(bxCheck,60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)bxCheck()});
+addEventListener('online',()=>bxDirty?bxPush():bxCheck());
+/* ==================== fin errores de build ==================== */
+
 /* Arranque: va al final para que todo lo anterior ya esté definido */
 (async()=>{
  let c=null;try{c=await idbGet('cache')}catch(e){}
  if(!c){try{c=JSON.parse(localStorage.getItem('dt_cache')||'null')}catch(e){}}
  if(c){try{people=c.people||[];tasks=c.tasks||[];auth=c.auth||null;norm()}catch(e){}}
+ try{const b=await idbGet('bx');if(b){bxs=b.errors||[];bxGone=b.gone||{};bxNormAll()}}catch(e){}
  try{draw()}catch(e){}
  if(c)bootHide();                       /* hay datos guardados: se muestran ya y se actualizan en segundo plano */
  bootMsg('Cargando configuración…');
@@ -785,6 +964,7 @@ setInterval(remCheck,20000);document.addEventListener('visibilitychange',()=>{if
  bootMsg(linked()?'Descargando datos…':'Preparando…');
  const slow=setTimeout(()=>bootMsg('Descargando datos… tarda más de lo normal'),8000);
  try{await pull()}catch(e){}
+ bootMsg('Descargando errores de build…');try{await bxPull()}catch(e){}
  clearTimeout(slow);bootMsg('Casi listo…');
  try{draw()}catch(e){}
  bootHide();remCheck()})();

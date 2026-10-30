@@ -56,3 +56,25 @@ El menú *Daily* sustituye al script de Python: sortea el orden de intervención
 ## Reuniones
 
 *Tipo de tarea → Reunión*: fecha, hora, asistentes (varias personas) y si es **interna** o **con el Ministerio**. Se muestra con un icono de calendario tipo Outlook (azul si es interna, morado si es con el Ministerio) en la tarea de cada asistente. Se cierra sola **12 horas después de su hora de inicio**. El menú *Reuniones*, bajo Backlog, lista las de hoy, las próximas y las anteriores, y su icono cambia de color cuando hay reuniones abiertas hoy en el equipo (gris: ninguna; azul: solo internas; morado: alguna con el Ministerio), con un contador. Solo los administradores crean y editan reuniones; el resto las ve en solo lectura.
+
+## Errores agrupados por persona
+
+Cuando una persona tiene **3 o más errores** abiertos, en el Diario y en el sorteo de la Daily se muestran como **una sola línea resumen**: «🐞 8 errores · 8 en proceso · 1 parada · más antiguo 10 días». Al pulsarla se despliega una lista compacta de una línea por error (los más antiguos primero, con desplazamiento propio) y un enlace *Ver en Consultas*, que abre Estadísticas → Consultas ya filtrada por esa persona, tipo Error y abiertas. Con 1 o 2 errores se siguen viendo como tarjetas normales. El estado desplegado se recuerda en cada dispositivo. El subtítulo del Diario indica cuántos de los «tareas en proceso» son errores. El umbral es la constante `ERR_GROUP` de `index.html`.
+
+## Rendimiento: datos comprimidos, caché y pantalla de carga
+
+- **`data.json` comprimido (gzip).** Con muchos errores importados el fichero llegaba a ~4,8 MB y cada guardado subía todo. Ahora se guarda comprimido (~0,2 MB con 2.338 errores) y la app sigue leyendo también el JSON plano antiguo, así que no hay que migrar nada: el primer guardado convierte el fichero. El contenido ya no es legible en GitHub; el historial de commits sigue sirviendo de copia de seguridad. Para volver a JSON legible pon `ZIP=false` en `index.html`. Todos los dispositivos deben tener la versión 0.20.0 o superior (las anteriores no entienden el fichero comprimido y mostrarán «Error al leer»).
+- **Caché local en IndexedDB.** Antes se usaba `localStorage` (límite de ~5 MB) y con tantos errores la caché dejaba de guardarse. Con IndexedDB la app abre al instante con los últimos datos y se actualiza en segundo plano.
+- **Pantalla de carga.** Se muestra mientras se descargan los datos la primera vez (o sin caché); si hay caché, los datos aparecen enseguida.
+- **Sondeo sin descarga.** La comprobación de cambios usa `If-None-Match` (ETag): si nada ha cambiado, GitHub responde 304 sin enviar el fichero.
+
+## Errores de build (menú independiente)
+
+Los errores importados desde el Excel del build (p. ej. los de una actualización de Angular) **no son tareas**: viven en su propio fichero `errores.json` (mismo repositorio de datos, comprimido) y tienen su propio menú **🛠️ Errores build**, sin relación con el Backlog, el Diario, el Daily ni las Estadísticas.
+
+- **Quién puede tocarlos:** cualquier persona (no hay permisos por rol). Solo el modo invitado (token de solo lectura) los ve sin poder editar. Se puede cambiar persona y estado directamente en el listado, o abrir el error para editar todos sus campos (título, descripción, código, severidad, componente, fichero, línea, fechas, personas y seguimiento), crear errores a mano o eliminarlos.
+- **Pantalla:** mismo aspecto que Estadísticas › Consultas: buscador (título, descripción, seguimiento o persona), filtros de persona, estado, severidad, código, prioridad y fechas, orden, resúmenes clicables y listado de 50 en 50 con «Mostrar 50 más». **⬇ CSV** exporta todo lo filtrado.
+- **Importar Excel:** botón **⬆ Importar Excel** en esa pantalla. Mapeo: título = resumen del `Bloque_Log`; descripción con ID, Severidad, Código, Componente, Fichero, Línea, Error_Advertencia, Como_corregir, Fragmento y Bloque_Log; estado Pendiente y fecha de hoy. No duplica los ya importados.
+- **Guardado compartido:** cada error lleva su fecha de última modificación. Si dos personas guardan a la vez, la app fusiona ambos cambios (gana el más reciente de cada error) en lugar de pedir repetirlos, y cada minuto recoge los cambios de los demás.
+- **Migración automática:** al abrir la versión 0.21.0, las tareas de tipo Error que se importaron del Excel (las que tienen identificador `BLD-…`) pasan a `errores.json`. Solo cuando ese fichero se ha guardado bien se quitan de `data.json`; si falla, no se pierde nada y se reintenta. Las tareas de tipo Error creadas a mano en el Backlog **no se tocan**.
+- **Versiones:** todos los dispositivos deben tener la 0.21.0 o superior; una versión anterior seguiría mostrando como tareas los errores que aún no se hayan migrado y no vería los cambios.
